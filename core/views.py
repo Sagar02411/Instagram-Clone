@@ -188,7 +188,7 @@ class ProfileView(View):
 class FollowView(View):
     @login_required(login_url='signin')
     def get(self, request):
-        print("Follow feaure")
+        print("Follow feaure ")
         return redirect('/')
 
     def post(self, request):
