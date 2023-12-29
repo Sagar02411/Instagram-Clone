@@ -8,5 +8,6 @@ urlpatterns = [
     path('signin', views.SigninView.as_view(), name='signin'),
     path('logout', views.LogoutView.as_view(), name='logout'),
     path('profile/<str:pk>', views.ProfileView.as_view(), name='profile'),
+    path('like-post', views.LikePostView.as_view(), name='like-post'),
     path('follow', views.FollowView.as_view(), name='follow'),
 ]
