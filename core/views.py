@@ -9,8 +9,8 @@ from django.views import View
 
 class IndexView(View):
     def get(self, request):
-        user_object = User.objects.get(username=request.user.username)
-        user_profile = Profile.objects.get(user=user_object)
+        user_object = User.objects.filter(username=request.user.username).first()
+        user_profile = Profile.objects.filter(user=user_object).first()
 
         feed = []
         user_following_list = []
@@ -26,21 +26,21 @@ class IndexView(View):
 
         feed_list = list(chain(*feed))
         post = Post.objects.all()
-        print("*"*50, user_following)
+        #print("*"*50, user_following)
 
         return render(request, 'index.html', {'user_profile': user_profile, 'posts':feed_list})
     
     def post(self, request):
-        print("try")
+        #print("try")
         return redirect('/')
 
 class SignupView(View):
     def get(self, request):
-        print("try")
+        #print("try")
         return render(request, 'signup.html')
 
     def post(self, request):
-        print("hello")
+        #print("hello")
         username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
@@ -60,7 +60,7 @@ class SignupView(View):
                 #log user in and redirect to settings page
                 user_login = auth.authenticate(username=username, password=password)
                 auth.login(request, user_login)
-                print("signup successful !!")
+                #print("signup successful !!")
                 #create a Profile object for the new user
                 # user_model = User.objects.get(username=username)
                 # new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
@@ -72,7 +72,7 @@ class SignupView(View):
         
 class SigninView(View):
     def get(self, request):
-        print("try")
+        #print("try")
         return render(request, 'signin.html')
 
     def post(self, request):
@@ -91,7 +91,7 @@ class SigninView(View):
 
 class LogoutView(View):
     def get(self, request):
-        print("try")
+        #print("try")
         return render(request, 'signup.html')
 
     def post(self, request):
@@ -102,7 +102,7 @@ class LogoutView(View):
 class UploadView(View):
     @login_required(login_url='signin')
     def get(self, request):
-        print("Upload post")
+        #print("Upload post")
         return redirect('signin')
 
     def post(self, request):
@@ -120,16 +120,14 @@ class UploadView(View):
 class LikePostView(View):
     #@login_required(login_url='signin')
     def get(self, request):
+        print( "*"*50)
         print("Like post")
-        return redirect('/')
-    
-    def post(self, request):
-        print( "*"*50, "Like post")
         username = request.user.username
-        #print(username)
+        print( "*"*50)
+        print(username)
         post_id = request.GET.get('post_id')
-
-        post = Post.objects.get(id=post_id)
+        print(post_id)
+        post = Post.objects.filter(id=post_id).first()
 
         like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
 
@@ -145,19 +143,23 @@ class LikePostView(View):
             post.save()
             return redirect('/')
 
+    def post(self, request):
+        print("Like post")
+        return redirect('/')
+
 class ProfileView(View):
     #@login_required(login_url='signin')
     def get(self, request, pk):
-        print("*"*50)
+        #print("*"*50)
         user_object = User.objects.filter(username=pk).first()  # use filter insted of get Ref. from Mayur san
-        print("profile")
+        #print("profile")
         user_profile = Profile.objects.filter(user=user_object).first()
         user_posts = Post.objects.filter(user=pk)
         user_post_length = len(user_posts)
 
         follower = request.user.username
         user = pk
-        print("*" * 20)
+        #print("*" * 20)
         for i in user_posts:
             print(i.image)
 
@@ -186,7 +188,7 @@ class ProfileView(View):
 class FollowView(View):
     @login_required(login_url='signin')
     def get(self, request):
-        print("Follow feaure")
+        print("Follow feaure ")
         return redirect('/')
 
     def post(self, request):
