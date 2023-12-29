@@ -11,8 +11,8 @@
         width: 14.7%;
     }
     .photos > li {
-        min-width: 211px;
-        width: 211px;
+        min-width: auto;
+        width: auto;
     }
     
     .page-infos > span {
@@ -57,8 +57,8 @@
 
 @media screen and (max-width: 1281px) and (min-width: 1024px) {
     .photos > li {
-        min-width: 32.2%;
-        width: 32.2%;
+        min-width: auto;
+        width: auto;
     }
     .timeline-info {
         line-height: 51px;

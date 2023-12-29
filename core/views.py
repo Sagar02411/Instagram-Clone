@@ -10,14 +10,25 @@ from django.views import View
 class IndexView(View):
     def get(self, request):
         user_object = User.objects.get(username=request.user.username)
+        user_profile = Profile.objects.get(user=user_object)
 
         feed = []
+        user_following_list = []
+
+        user_following = FollowersCount.objects.filter(follower=request.user.username)
+
+        for users in user_following:
+            user_following_list.append(users.user)
+
+        for usernames in user_following_list:
+            feed_lists = Post.objects.filter(user=usernames)
+            feed.append(feed_lists)
+
         feed_list = list(chain(*feed))
+        post = Post.objects.all()
+        print("*"*50, user_following)
 
-        all_users = User.objects.all()
-        user_following_all = []
-
-        return render(request, 'index.html', {'posts':feed_list})
+        return render(request, 'index.html', {'user_profile': user_profile, 'posts':feed_list})
     
     def post(self, request):
         print("try")
@@ -97,7 +108,7 @@ class UploadView(View):
     def post(self, request):
         user = request.user.username
         image = request.FILES.get('image_upload')
-        print("*"*20, image)
+        # print("*"*20, image)
 
         caption = request.POST['caption']
 
@@ -107,13 +118,15 @@ class UploadView(View):
         return redirect('/')
 
 class LikePostView(View):
-    @login_required(login_url='signin')
+    #@login_required(login_url='signin')
     def get(self, request):
         print("Like post")
         return redirect('/')
     
     def post(self, request):
+        print( "*"*50, "Like post")
         username = request.user.username
+        #print(username)
         post_id = request.GET.get('post_id')
 
         post = Post.objects.get(id=post_id)
@@ -135,7 +148,7 @@ class LikePostView(View):
 class ProfileView(View):
     #@login_required(login_url='signin')
     def get(self, request, pk):
-        
+        print("*"*50)
         user_object = User.objects.filter(username=pk).first()  # use filter insted of get Ref. from Mayur san
         print("profile")
         user_profile = Profile.objects.filter(user=user_object).first()
