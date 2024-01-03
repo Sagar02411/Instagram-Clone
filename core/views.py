@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Profile, Post, LikePost, FollowersCount
 from itertools import chain
 from django.views import View
+import random
 
 class IndexView(View):
     def get(self, request):
@@ -25,10 +26,34 @@ class IndexView(View):
             feed.append(feed_lists)
 
         feed_list = list(chain(*feed))
+        all_users = User.objects.all()
+        user_following_all = []
+
+        for user in user_following:
+            user_list = User.objects.get(username=user.user)
+            user_following_all.append(user_list)
+        
+        new_suggestions_list = [x for x in list(all_users) if (x not in list(user_following_all))]
+        current_user = User.objects.filter(username=request.user.username)
+        final_suggestions_list = [x for x in list(new_suggestions_list) if ( x not in list(current_user))]
+        random.shuffle(final_suggestions_list)
+
+        username_profile = []
+        username_profile_list = []
+
+        for users in final_suggestions_list:
+            username_profile.append(users.id)
+
+        for ids in username_profile:
+            profile_lists = Profile.objects.filter(id_user=ids)
+            username_profile_list.append(profile_lists)
+
+        suggestions_username_profile_list = list(chain(*username_profile_list))
+
         post = Post.objects.all()
         #print("*"*50, user_following)
-
-        return render(request, 'index.html', {'user_profile': user_profile, 'posts':feed_list})
+        display_user = request.user.username
+        return render(request, 'index.html', {'user_profile': user_profile, 'posts':feed_list, 'suggestions_username_profile_list': suggestions_username_profile_list[:4], 'user': display_user})
     
     def post(self, request):
         #print("try")
@@ -60,11 +85,11 @@ class SignupView(View):
                 #log user in and redirect to settings page
                 user_login = auth.authenticate(username=username, password=password)
                 auth.login(request, user_login)
-                #print("signup successful !!")
-                #create a Profile object for the new user
-                # user_model = User.objects.get(username=username)
-                # new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
-                # new_profile.save()
+                print("signup successful !!")
+                # create a Profile object for the new user
+                user_model = User.objects.get(username=username)
+                new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
+                new_profile.save()
                 return redirect('signin')
         else:
             messages.info(request, 'Password Not Matching')
@@ -174,6 +199,7 @@ class ProfileView(View):
             'user_object': user_object,
             'user_profile': user_profile,
             'user_posts': user_posts,
+            'button_text': button_text,
             'user_post_length': user_post_length,
             'user_followers': user_followers,
             'user_following': user_following,
@@ -203,4 +229,25 @@ class FollowView(View):
         else:
             new_follower = FollowersCount.objects.create(follower=follower, user=user)
             new_follower.save()
-            return redirect('/profile/'+user)
+            return redirect('/profile/'+user) 
+        
+class SettingsVew(View):
+    def get(self, request):
+        user_profile = Profile.objects.get(user=request.user)
+        print("*" * 50, "Setting button")
+        return render(request, 'setting.html', {'user_profile': user_profile})
+
+    @login_required(login_url='signin')
+    def post(self, request):
+        user_profile = Profile.objects.get(user=request.user)
+        if request.FILES.get('image') == None:
+            image = user_profile.profileimg
+            user_profile.profileimg = image
+            user_profile.save()
+
+        if request.FILES.get('image') != None:
+            image = request.FILES.get('image')
+            user_profile.profileimg = image
+            user_profile.save()
+        
+        return redirect('settings')

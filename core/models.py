@@ -9,6 +9,8 @@ User = get_user_model()
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
+    profileimg = models.ImageField(upload_to='profile_images', default='blank-profile-picture.png')
+
     def __str__(self):
         return self.user.username
 
@@ -29,7 +31,7 @@ class LikePost(models.Model):
     def __str__(self):
         return self.username
 
-class FollowersCount(models.Model):
+class FollowersCount(models.Model):   
     follower = models.CharField(max_length=100, default='name')
     user = models.CharField(max_length=100)
 
