@@ -7,6 +7,10 @@ from .models import Profile, Post, LikePost, FollowersCount, Message
 from itertools import chain
 from django.views import View
 import random
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
+
 
 class IndexView(View):
     def get(self, request):
@@ -71,6 +75,16 @@ class SignupView(View):
         password = request.POST['password']
         password2 = request.POST['password2']
     
+        try:
+            validate_password(password, user=User)
+        except ValidationError as e:
+            messages.info(request, ' '.join(e))
+            return redirect('signup')
+
+        if username.lower() in password.lower():
+            messages.info(request, 'Password should not contain the username')
+            return redirect('signup')
+        
         if password == password2:
             if User.objects.filter(email=email).exists():
                 messages.info(request, 'Email Taken')
