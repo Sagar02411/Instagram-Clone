@@ -1,0 +1,10 @@
+<!-- inbox.html -->
+
+{% block content %}
+  <h2>Inbox</h2>
+  {% for message in messages %}
+    <div>
+      <strong>{{ message.sender.username }}</strong> said: {{ message.body }}
+    </div>
+  {% endfor %}
+{% endblock %}
