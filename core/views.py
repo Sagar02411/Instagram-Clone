@@ -270,79 +270,23 @@ class SettingsVew(View):
     
 class InboxView(View):
     def get(self, request):
-        return render(request, 'direct.html')
-
+        print(request.user)
+        messages = Message.objects.filter(recipient=request.user, is_read=False)
+        print(messages)
+        return render(request, 'inbox.html', {'messages': messages})
 
     def post(self, request):
         user = request.user
-        messages = Message.get_message(user=request.user)
-        active_direct = None
-        directs = None
-        profile = get_object_or_404(Profile, user=user)
-        print(message)
-        if messages:
-            message = messages[0]
-            active_direct = message['user'].username
-            directs = Message.objects.filter(user=request.user, reciepient=message['user'])
-            directs.update(is_read=True)
+        messages = Message.objects.filter(recipient=user, is_read=False)
+        # ... rest of your code ...
+        pass
 
-            for message in messages:
-                if message['user'].username == active_direct:
-                    message['unread'] = 0
-        context = {
-            'directs':directs,
-            'messages': messages,
-            'active_direct': active_direct,
-            'profile': profile,
-        }
-        return render(request, 'direct.html', context)
-    
-class DirectsView(View):
-    def get(self, request, username):
-        user  = request.user
-        messages = Message.get_message(user=user)
-        active_direct = username
-        directs = Message.objects.filter(user=user, reciepient__username=username)  
-        directs.update(is_read=True)
+class SendMessageView(View):
+    def get(self, request, recipient_username):
+        return render(request, 'send_message.html', {'recipient_username': recipient_username})
 
-        for message in messages:
-                if message['user'].username == username:
-                    message['unread'] = 0
-        context = {
-            'directs': directs,
-            'messages': messages,
-            'active_direct': active_direct,
-        }
-        print(messages)
-        return render(request, 'direct.html', context)
-       
-    def post(self, request, username):
-        user  = request.user
-        messages = Message.get_message(user=user)
-        active_direct = username
-        directs = Message.objects.filter(user=user, reciepient__username=username)  
-        directs.update(is_read=True)
-
-        for message in messages:
-                if message['user'].username == username:
-                    message['unread'] = 0
-        context = {
-            'directs': directs,
-            'messages': messages,
-            'active_direct': active_direct,
-        }
-        print(messages)
-        return render(request, 'direct.html', context)
-
-class SendDirectView(View):
-    def get(request):
-        return render('direct.html')
-
-    def post(request):
-        from_user = request.user
-        to_user_username = request.POST.get('to_user')
+    def post(self, request, recipient_username):
         body = request.POST.get('body')
-
-        to_user = User.objects.get(username=to_user_username)
-        Message.sender_message(from_user, to_user, body)
-        return redirect('message')
+        recipient = User.objects.get(username=recipient_username)
+        Message.objects.create(sender=request.user, recipient=recipient, body=body)
+        return redirect('inbox')
