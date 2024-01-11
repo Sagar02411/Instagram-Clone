@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Post, LikePost, FollowersCount
+from .models import Profile, Post, LikePost, FollowersCount, Message
 from itertools import chain
 from django.views import View
 import random
@@ -135,6 +135,9 @@ class UploadView(View):
         image = request.FILES.get('image_upload')
         # print("*"*20, image)
 
+        if not image.content_type.startswith('image/'):
+            return HttpResponseBadRequest("Only JPEG and PNG images are allowed.")
+
         caption = request.POST['caption']
 
         new_post = Post.objects.create(user=user, image=image, caption=caption)
@@ -237,7 +240,6 @@ class SettingsVew(View):
         print("*" * 50, "Setting button")
         return render(request, 'setting.html', {'user_profile': user_profile})
 
-    @login_required(login_url='signin')
     def post(self, request):
         user_profile = Profile.objects.get(user=request.user)
         if request.FILES.get('image') == None:
@@ -251,3 +253,82 @@ class SettingsVew(View):
             user_profile.save()
         
         return redirect('settings')
+    
+class InboxView(View):
+    def get(self, request):
+        return render(request, 'direct.html')
+
+
+    def post(self, request):
+        user = request.user
+        messages = Message.get_message(user=request.user)
+        active_direct = None
+        directs = None
+        profile = get_object_or_404(Profile, user=user)
+        print(message)
+        if messages:
+            message = messages[0]
+            active_direct = message['user'].username
+            directs = Message.objects.filter(user=request.user, reciepient=message['user'])
+            directs.update(is_read=True)
+
+            for message in messages:
+                if message['user'].username == active_direct:
+                    message['unread'] = 0
+        context = {
+            'directs':directs,
+            'messages': messages,
+            'active_direct': active_direct,
+            'profile': profile,
+        }
+        return render(request, 'direct.html', context)
+    
+class DirectsView(View):
+    def get(self, request, username):
+        user  = request.user
+        messages = Message.get_message(user=user)
+        active_direct = username
+        directs = Message.objects.filter(user=user, reciepient__username=username)  
+        directs.update(is_read=True)
+
+        for message in messages:
+                if message['user'].username == username:
+                    message['unread'] = 0
+        context = {
+            'directs': directs,
+            'messages': messages,
+            'active_direct': active_direct,
+        }
+        print(messages)
+        return render(request, 'direct.html', context)
+       
+    def post(self, request, username):
+        user  = request.user
+        messages = Message.get_message(user=user)
+        active_direct = username
+        directs = Message.objects.filter(user=user, reciepient__username=username)  
+        directs.update(is_read=True)
+
+        for message in messages:
+                if message['user'].username == username:
+                    message['unread'] = 0
+        context = {
+            'directs': directs,
+            'messages': messages,
+            'active_direct': active_direct,
+        }
+        print(messages)
+        return render(request, 'direct.html', context)
+
+class SendDirectView(View):
+    def get(request):
+        return render('direct.html')
+
+    def post(request):
+        from_user = request.user
+        to_user_username = request.POST.get('to_user')
+        body = request.POST.get('body')
+
+        to_user = User.objects.get(username=to_user_username)
+        Message.sender_message(from_user, to_user, body)
+        return redirect('message')
