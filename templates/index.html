@@ -17,6 +17,12 @@
     <link rel="stylesheet" href="{% static 'assets/css/tailwind.css' %}">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .comment-text {
+    font-size: 12px
+}
+
+    </style>
 </head>
 
 <body>
@@ -191,7 +197,7 @@
                               <div>
                                 <a href="#"> <i class="icon-feather-more-horizontal text-2xl hover:bg-gray-200 rounded-full p-2 transition -mr-1 "></i> </a>
                                 <div class="bg-white w-56 shadow-md mx-auto p-2 mt-12 rounded-md text-gray-500 hidden text-base border border-gray-100  " uk-drop="mode: hover;pos: top-right">
-                              
+                                    
                                     <ul class="space-y-1">
                                       <!-- <li> 
                                           <a href="#" class="flex items-center px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md ">
@@ -217,8 +223,7 @@
                                         <hr class="-mx-2 my-2 ">
                                       </li> -->
                                       <li> 
-                                          <a href="#" class="flex items-center px-3 py-2 text-red-500 hover:bg-red-100 hover:text-red-500 rounded-md ">
-                                           <i class="uil-trash-alt mr-1"></i>  Delete Post
+                                          
                                           </a> 
                                       </li>
                                     </ul>
@@ -252,6 +257,7 @@
                                         </div>
                                         
                                     </a>
+                                    <div class="mt-2 text-right"><button class="btn btn-primary btn-sm shadow-none" type="submit">Post comment</button></div>
                                     <!-- <a href="#" class="flex items-center space-x-2">
                                         <div class="p-2 rounded-full text-black">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="25" height="25" class="">
@@ -265,19 +271,22 @@
                                         
                                     </a>
                                 </div>
-                                <!-- <div class="flex items-center space-x-3"> 
-                                    <div class="flex items-center">
-                                        <img src="{% static 'assets/images/avatars/avatar-1.jpg' %}" alt="" class="w-6 h-6 rounded-full border-2 border-white ">
-                                        <img src="{% static 'assets/images/avatars/avatar-4.jpg' %}" alt="" class="w-6 h-6 rounded-full border-2 border-white  -ml-2">
-                                        <img src="{% static 'assets/images/avatars/avatar-2.jpg' %}" alt="" class="w-6 h-6 rounded-full border-2 border-white  -ml-2">
-                                    </div>
-                                    <div class="">
-                                        Liked <strong> taiye</strong> and <strong> 209 Others </strong>
-                                    </div>
-                                </div> -->
 
                                 <p>
                                     <a href="/profile/{{post.user}}"><strong>{{post.user}}</strong></a> {{post.caption}}
+                                </p>
+                                <p>
+                                    {% for comment in comments %}
+                                                    <div class="bg-white p-2">
+                                                        <div class="d-flex flex-row user-info"><img class="rounded-circle" src="{{user_profile.profileimg.url}}" width="30" height="30">
+                                                            <a href="{% url 'profile' comment.user %}" style="text-decoration: none;">
+                                                            <div class="d-flex flex-column justify-content-start ml-2"><span class="d-block font-weight-bold name">{{user.users}}</span><span class="date text-black-50"> {{comment.date}}</span></div></a>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <p class="comment-text">{{ comment.comments }}</p>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
                                 </p>
 
                                 <!-- <div class="border-t pt-4 space-y-4 ">

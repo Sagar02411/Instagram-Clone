@@ -3,18 +3,23 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Post, LikePost, FollowersCount, Message
+from .models import Profile, Post, LikePost, FollowersCount, Message, Comment
 from itertools import chain
 from django.views import View
 import random
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 
 
 
 class IndexView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         user_object = User.objects.filter(username=request.user.username).first()
+        print("*" * 50, user_object.username)
         user_profile = Profile.objects.filter(user=user_object).first()
 
         feed = []
@@ -130,20 +135,19 @@ class SigninView(View):
 
 class LogoutView(View):
     def get(self, request):
-        #print("try")
-        return render(request, 'signup.html')
+        auth.logout(request)
+        return redirect('signin')
 
     def post(self, request):
-        auth.logout(request)
         return redirect('signin')
 
 
 class UploadView(View):
-    @login_required(login_url='signin')
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
-        #print("Upload post")
         return redirect('signin')
 
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         user = request.user.username
         image = request.FILES.get('image_upload')
@@ -160,13 +164,8 @@ class UploadView(View):
         return redirect('/')
 
 class LikePostView(View):
-    #@login_required(login_url='signin')
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
-        print( "*"*50)
-        print("Like post")
-        username = request.user.username
-        print( "*"*50)
-        print(username)
         post_id = request.GET.get('post_id')
         print(post_id)
         post = Post.objects.filter(id=post_id).first()
@@ -190,11 +189,15 @@ class LikePostView(View):
         return redirect('/')
 
 class ProfileView(View):
-    #@login_required(login_url='signin')
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request, pk):
         #print("*"*50)
-        user_object = User.objects.filter(username=pk).first()  # use filter insted of get Ref. from Mayur san
-        #print("profile")
+        user_object = User.objects.filter(username=pk).first()  
+        print(user_object)
+        if user_object is None:
+            messages.info(request, 'User does not exist')
+            return redirect('/')
+
         user_profile = Profile.objects.filter(user=user_object).first()
         user_posts = Post.objects.filter(user=pk)
         user_post_length = len(user_posts)
@@ -229,11 +232,12 @@ class ProfileView(View):
         return redirect('/')
 
 class FollowView(View):
-    @login_required(login_url='signin')
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         print("Follow feaure ")
         return redirect('/')
 
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         print("Follow and unfolow feature")
         follower = request.POST['follower']
@@ -249,11 +253,13 @@ class FollowView(View):
             return redirect('/profile/'+user) 
         
 class SettingsVew(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         user_profile = Profile.objects.get(user=request.user)
         print("*" * 50, "Setting button")
         return render(request, 'setting.html', {'user_profile': user_profile})
 
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         user_profile = Profile.objects.get(user=request.user)
         if request.FILES.get('image') == None:
@@ -269,12 +275,14 @@ class SettingsVew(View):
         return redirect('settings')
     
 class InboxView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         print(request.user)
         messages = Message.objects.filter(recipient=request.user, is_read=False)
         print(messages)
         return render(request, 'inbox.html', {'messages': messages})
 
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         user = request.user
         messages = Message.objects.filter(recipient=user, is_read=False)
@@ -282,11 +290,24 @@ class InboxView(View):
         pass
 
 class SendMessageView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request, recipient_username):
         return render(request, 'send_message.html', {'recipient_username': recipient_username})
 
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request, recipient_username):
         body = request.POST.get('body')
         recipient = User.objects.get(username=recipient_username)
         Message.objects.create(sender=request.user, recipient=recipient, body=body)
         return redirect('inbox')
+
+class CommentView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
+    def post(self, request):
+        post_object = Post.objects.filter(id = request.post).first()
+        user = request.user.username
+        comment = request.POST.get('comment')
+        new_comment = Comment.objects.create(post = post_object.post_id, user=user, comment=comment)
+        new_comment.save()
+        
+        return redirect('/')
