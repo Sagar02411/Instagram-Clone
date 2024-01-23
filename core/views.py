@@ -19,50 +19,46 @@ class IndexView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         user_object = User.objects.filter(username=request.user.username).first()
-        print("*" * 50, user_object.username)
         user_profile = Profile.objects.filter(user=user_object).first()
+ 
+        user_following_list = [user.user for user in FollowersCount.objects.filter(follower=request.user.username)]
+ 
+        # Fetch posts for the user's following list
+        posts = Post.objects.filter(user__in=user_following_list)
+        print('list of posts',posts)
+        # Fetch comments for all posts
+        comments_dict = {}
+        for post1 in posts:
+            comments = Comment.objects.filter(post=post1).order_by('-date')
+            print('list of comments',comments)
+            comments_list = []
+            for obj in comments:
+                comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date})
+            comments_dict[post1] = comments_list
 
-        feed = []
-        user_following_list = []
-
-        user_following = FollowersCount.objects.filter(follower=request.user.username)
-
-        for users in user_following:
-            user_following_list.append(users.user)
-
-        for usernames in user_following_list:
-            feed_lists = Post.objects.filter(user=usernames)
-            feed.append(feed_lists)
-
-        feed_list = list(chain(*feed))
-        all_users = User.objects.all()
-        user_following_all = []
-
-        for user in user_following:
-            user_list = User.objects.get(username=user.user)
-            user_following_all.append(user_list)
+        print("line number 39",comments_dict)
         
-        new_suggestions_list = [x for x in list(all_users) if (x not in list(user_following_all))]
+        all_users = User.objects.all()
+        user_following_all = [User.objects.get(username=user.user) for user in FollowersCount.objects.filter(follower=request.user.username)]
+        new_suggestions_list = [user for user in all_users if user not in user_following_all]
         current_user = User.objects.filter(username=request.user.username)
-        final_suggestions_list = [x for x in list(new_suggestions_list) if ( x not in list(current_user))]
-        random.shuffle(final_suggestions_list)
-
-        username_profile = []
-        username_profile_list = []
-
-        for users in final_suggestions_list:
-            username_profile.append(users.id)
-
-        for ids in username_profile:
-            profile_lists = Profile.objects.filter(id_user=ids)
-            username_profile_list.append(profile_lists)
-
-        suggestions_username_profile_list = list(chain(*username_profile_list))
-
-        post = Post.objects.all()
-        #print("*"*50, user_following)
-        display_user = request.user.username
-        return render(request, 'index.html', {'user_profile': user_profile, 'posts':feed_list, 'suggestions_username_profile_list': suggestions_username_profile_list[:4], 'user': display_user})
+        final_suggestions_list = [user for user in new_suggestions_list if user not in current_user]
+ 
+        suggestions_username_profile_list = Profile.objects.filter(user__in=final_suggestions_list[:4])
+ 
+        display_user = request.user.username 
+ 
+        return render(request, 'index.html', {
+            'user_profile': user_profile,
+            'posts': posts,
+            'suggestions_username_profile_list': suggestions_username_profile_list,
+            'user': display_user,
+            'comments_dict': comments_dict,
+        })
+   
+    def post(self, request):
+        #print("try")
+        return redirect('/')
     
     def post(self, request):
         #print("try")
