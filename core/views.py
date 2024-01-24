@@ -29,11 +29,11 @@ class IndexView(View):
         # Fetch comments for all posts
         comments_dict = {}
         for post1 in posts:
-            comments = Comment.objects.filter(post=post1).order_by('-date')
+            comments = Comment.objects.filter(post=post1, active=True).order_by('-date')
             print('list of comments',comments)
             comments_list = []
             for obj in comments:
-                comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date})
+                comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date, 'cmt_id': obj.id})
             comments_dict[post1] = comments_list
 
         print("line number 39",comments_dict)
@@ -300,10 +300,24 @@ class SendMessageView(View):
 class CommentView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
-        post_object = Post.objects.filter(id = request.post).first()
-        user = request.user.username
-        comment = request.POST.get('comment')
-        new_comment = Comment.objects.create(post = post_object.post_id, user=user, comment=comment)
-        new_comment.save()
-        
+        post_id = request.POST.get('post_id')
+        comment_text = request.POST.get('comment')
+
+        if post_id and comment_text:
+            post = Post.objects.get(pk=post_id)
+            Comment.objects.create(post=post, user=request.user, comment=comment_text)
+            messages.success(request, 'Comment added successfully!')
+        else:
+            messages.error(request, 'Failed to add comment. Please fill in all fields.')
+
+        return redirect('index')
+
+class CommentDeleteView(View):
+    def post(self, request, *args, **kwargs):
+        comment_id = kwargs.get('comment_id')
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        comment.soft_delete()
+
+        messages.success(request, 'Comment deleted successfully!')
         return redirect('/')
