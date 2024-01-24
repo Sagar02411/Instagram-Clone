@@ -12,7 +12,7 @@ urlpatterns = [
     path('settings', views.SettingsVew.as_view(), name='settings'),
     path('follow', views.FollowView.as_view(), name='follow'),
     path('inbox/', views.InboxView.as_view(), name='inbox'),
-    path('comment/', views.CommentView.as_view(), name='comment'),
+    path('comment', views.CommentView.as_view(), name='comment'),
+    path('comment/delete/<int:comment_id>/', views.CommentDeleteView.as_view(), name='comment-delete'),
     path('send-message/<str:recipient_username>/', views.SendMessageView.as_view(), name='send-message'),
-
 ]
