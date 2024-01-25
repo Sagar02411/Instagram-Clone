@@ -25,7 +25,6 @@ class IndexView(View):
  
         # Fetch posts for the user's following list
         posts = Post.objects.filter(user__in=user_following_list)
-        print('list of posts',posts)
         # Fetch comments for all posts
         comments_dict = {}
         for post1 in posts:
@@ -306,7 +305,7 @@ class CommentView(View):
         if post_id and comment_text:
             post = Post.objects.get(pk=post_id)
             Comment.objects.create(post=post, user=request.user, comment=comment_text)
-            
+
         return redirect('index')
 
 class CommentDeleteView(View):
