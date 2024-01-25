@@ -804,6 +804,11 @@
                             {% csrf_token %}
                             <button type="submit">Delete comment</button>
                         </form>
+                        <form action="{% url 'comment-edit' value.0.cmt_id %}" method="POST">
+                            {% csrf_token %}
+                            <input type="text" name="commentedit" placeholder="comment edit  here!!">
+                            <button type="submit">Edit comment</button>
+                        </form>
                         {% endif %}
 
                         <br>
