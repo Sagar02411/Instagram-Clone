@@ -10,6 +10,10 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
     profileimg = models.ImageField(upload_to='profile_images', default='blank-profile-picture.png')
+    # created_at = models.DateTimeField(auto_now_add=True, null=True)
+    # updated_at = models.DateTimeField(auto_now_add=True, null=True)
+    # deleted_at = models.DateTimeField(auto_now_add=True, null=True)
+    # isactive = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.username

@@ -306,10 +306,7 @@ class CommentView(View):
         if post_id and comment_text:
             post = Post.objects.get(pk=post_id)
             Comment.objects.create(post=post, user=request.user, comment=comment_text)
-            messages.success(request, 'Comment added successfully!')
-        else:
-            messages.error(request, 'Failed to add comment. Please fill in all fields.')
-
+            
         return redirect('index')
 
 class CommentDeleteView(View):
@@ -319,5 +316,13 @@ class CommentDeleteView(View):
 
         comment.soft_delete()
 
-        messages.success(request, 'Comment deleted successfully!')
+        return redirect('/')
+
+class CommentEditView(View):
+    def post(self, request, *args, **kwargs):
+        comment_id = kwargs.get('comment_id')
+        comment = get_object_or_404(Comment, id=comment_id)
+        print("*"*50, request.POST.get('comment'))
+        comment.comment = request.POST.get('commentedit')
+        comment.save()
         return redirect('/')
