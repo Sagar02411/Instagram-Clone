@@ -309,6 +309,7 @@ class CommentView(View):
         return redirect('index')
 
 class CommentDeleteView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request, *args, **kwargs):
         comment_id = kwargs.get('comment_id')
         comment = get_object_or_404(Comment, id=comment_id)
@@ -318,6 +319,7 @@ class CommentDeleteView(View):
         return redirect('/')
 
 class CommentEditView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request, *args, **kwargs):
         comment_id = kwargs.get('comment_id')
         comment = get_object_or_404(Comment, id=comment_id)
@@ -325,3 +327,18 @@ class CommentEditView(View):
         comment.comment = request.POST.get('commentedit')
         comment.save()
         return redirect('/')
+
+class CommentReplyView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
+    def post(self, request, *args, **kwargs):
+        post_id = request.POST.get('post_id')
+        comment_text = request.POST.get('commentreply')
+        parent_id = request.POST.get('parent_id')
+        parent = Comment.objects.get(id=parent_id)
+
+        if post_id and comment_text:
+            post = Post.objects.get(pk=post_id)
+            Comment.objects.create(post=post, user=request.user, comment=comment_text, parent=parent)
+
+        return redirect('/')
+
