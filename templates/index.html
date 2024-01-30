@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+
 </head>
 
 <body>
@@ -106,7 +107,7 @@
                         </div>
 
                     </div>
-                    
+
                 </div>
 
                 <!-- Notification -->
@@ -315,24 +316,48 @@
 
                         {% for key, value in comments_dict.items %}
                         {% if key == post %}
-                        <strong>{{ value.0.user }}</strong> {{ value.0.comment }}
-                        {% if value.0.cmt_id %}
+                        {% for i in value%}
+                        <ul><strong>{{ i.user }}</strong> {{ i.comment }}
+                            <span class="time" style="color: #777;
+                            display: block;
+                            font-size: 12px;
+                            margin: 8px 0 0;">{{i.date}} </span>
+                            <li>
 
-                        <form action="{% url 'comment-delete' value.0.cmt_id %}" method="POST">
+                            </li>
+                        </ul>
+                        <form action="commentreply" method="POST">
+                            {% csrf_token %}
+
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="hidden" name="parent_id" value="{{ i.cmt_id }}">
+                            <input type="text" name="commentreply" placeholder="reply to @{{i.user}}">
+                            <button type="submit">reply</button>
+                        </form>
+                        {% if i.cmt_id %}
+                        {% if i.user == user %}
+                        <form action="{% url 'comment-delete' i.cmt_id %}" method="POST">
                             {% csrf_token %}
                             <button type="submit">Delete comment</button>
                         </form>
-                        <form action="{% url 'comment-edit' value.0.cmt_id %}" method="POST">
+                        {%endif%}
+                        <br>
+                        {% if i.user == user %}
+                        <form action="{% url 'comment-edit' i.cmt_id %}" method="POST">
                             {% csrf_token %}
                             <input type="text" name="commentedit" placeholder="comment edit  here!!">
                             <button type="submit">Edit comment</button>
                         </form>
-                        {% endif %}
 
-                        <br>
+                        {%endif%}
+                        {% endif %}
+                        {%endfor%}
+
                         {%endif%}
                         {% endfor %}
 
+
+                        
                         <!-- <div class="border-t pt-4 space-y-4 ">
                                     <div class="flex">
                                         <div class="w-10 h-10 rounded-full relative flex-shrink-0">

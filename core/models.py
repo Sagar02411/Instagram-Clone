@@ -58,6 +58,7 @@ class Comment(models.Model):
     comment = models.TextField()
     date = models.DateTimeField(auto_now_add=True, null=True)
     active = models.BooleanField(default=True)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, default=None, blank=True, null=True, related_name="comment_parent")
 
     def __str__(self):
         return self.user.username
