@@ -256,7 +256,11 @@ main{
     <div class="page">
         <div class="header">
             <img src="https://i.imgur.com/zqpwkLQ.png" />
-          <button><i class="fab fa-facebook-square"></i> Log in with Google</button>
+            <form method="post" action="{% url 'social:begin' 'google-oauth2' %}">
+              {% csrf_token %}
+              <button type="submit"><i class="fab fa-facebook-square"></i>Sign in with Google</button>
+          </form>
+          
           <div>
             <hr>
             <p>OR</p>
