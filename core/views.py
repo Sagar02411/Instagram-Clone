@@ -32,7 +32,10 @@ class IndexView(View):
             print('list of comments',comments)
             comments_list = []
             for obj in comments:
-                comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date, 'cmt_id': obj.id})
+                if obj.parent is not None:
+                    comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date, 'cmt_id': obj.id, 'parent': obj.parent})
+                else:
+                    comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date, 'cmt_id': obj.id})
             comments_dict[post1] = comments_list
 
         print("line number 39",comments_dict)
@@ -47,7 +50,7 @@ class IndexView(View):
  
         display_user = request.user.username 
  
-        return render(request, 'index.html', {
+        return render(request, 'testindex.html', {
             'user_profile': user_profile,
             'posts': posts,
             'suggestions_username_profile_list': suggestions_username_profile_list,
@@ -148,6 +151,8 @@ class UploadView(View):
         image = request.FILES.get('image_upload')
         # print("*"*20, image)
 
+        
+
         if not image.content_type.startswith('image/'):
             return HttpResponseBadRequest("Only JPEG and PNG images are allowed.")
 
@@ -161,6 +166,7 @@ class UploadView(View):
 class LikePostView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
+        username = request.user.username
         post_id = request.GET.get('post_id')
         print(post_id)
         post = Post.objects.filter(id=post_id).first()
