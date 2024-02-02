@@ -7,6 +7,7 @@ urlpatterns = [
     path('upload', views.UploadView.as_view(), name='upload'),
     path('signup', views.SignupView.as_view(), name='signup'),
     path('signin', views.SigninView.as_view(), name='signin'),
+    path('search', views.UserSearchView.as_view(), name='search'),
     path('logout', views.LogoutView.as_view(), name='logout'),
     path('profile/<str:pk>', views.ProfileView.as_view(), name='profile'),
     path('like-post', views.LikePostView.as_view(), name='like-post'),

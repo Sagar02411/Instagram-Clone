@@ -354,3 +354,22 @@ class CommentReplyView(View):
 
         return redirect('/')
 
+class UserSearchView(View):
+    def post(self, request):
+        username = request.POST['search_query']
+        username_object = User.objects.filter(username__icontains=username)
+
+        username_profile = []
+        username_profile_list = []
+
+        for users in username_object:
+            username_profile.append(users.id)
+
+        for ids in username_profile:
+            profile_lists = Profile.objects.filter(id_user=ids)
+            username_profile_list.append(profile_lists)
+        
+        username_profile_list = list(chain(*username_profile_list))
+        # print(username_profile_list)
+        return render(request, 'search.html', {'username_profile_list': username_profile_list})
+
