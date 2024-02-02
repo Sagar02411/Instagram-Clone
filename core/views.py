@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Profile, Post, LikePost, FollowersCount, Message, Comment
 from itertools import chain
@@ -178,12 +178,18 @@ class LikePostView(View):
             new_like.save()
             post.no_of_likes = post.no_of_likes+1
             post.save()
-            return redirect('/')
+
         else:
             like_filter.delete()
             post.no_of_likes = post.no_of_likes-1
             post.save()
-            return redirect('/')
+        likes = post.no_of_likes
+        dic = {
+            likes: likes
+        }
+        # print("*"*25,dic)
+        # return JsonResponse(dic, safe=False)
+        return redirect('/')
 
     def post(self, request):
         print("Like post")
