@@ -121,6 +121,7 @@
             justify-content: center;
         }
 
+
         .action .profile img {
             width: 100%;
             height: 100%;
@@ -576,7 +577,21 @@
             background-color: #fff;
             border: 1px solid #ccc;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 999;
+        }
+
+        .popupCmt {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            z-index: 1;
+        }
+
+        /* Style for the list items */
+        .popupCmt li {
+            list-style: none;
+            margin: 5px 0;
         }
     </style>
 
@@ -675,11 +690,6 @@
                                         href="/profile/{{post.user}}">@{{post.user}}</a></span>
                             </h3>
                         </div>
-                        <div>
-                            <span class="dot">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </span>
-                        </div>
                     </div>
                     <div class="imgBx" id="avatar">
                         <img src="media/{{post.image}}" alt="">
@@ -711,17 +721,33 @@
                                         44.5 12.7 44.5 24z" fill-rule="evenodd">
                                     </path>
                                 </svg>
-                                <div class="popup" id="popup">
+                                <div class="popup" id="popup" style="overflow-y:auto; max-height: 300px">
 
                                     {% for key, value in comments_dict.items %}
                                         {% if key == post %}
                                             {% for i in value%}
-                                                <ul><strong>{{ i.user }}</strong> {{ i.comment }}
-                                                <span class="time" style="color: #777;display: block;font-size: 12px; margin: 8px 0 0;">{{i.date}} </span>
+                                                <ul ><strong>{{ i.user }}</strong> {{ i.comment }}
+                                                <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
+                                                
+                                                <span id="popupTrigger">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </span>
+                                                
+                    
+                                                <div id="popupList" class="popupCmt">
+                                                    <ul>
+                                                        <li><a href="profile/{{user}}">Profile</a></li>
+                                                        <li><a href="/settings">Account setting</a></li>
+                                                        <li><a href="logout">ejrjrekl</a></li>
+                                                    </ul>
+                                                </div>
+                                                </ul>
+                                                <hr>
                                             {%endfor%}
 
                                         {%endif%}
                                     {% endfor %} 
+                                    
                                         <button onclick="closePopup()">Close</button>
                                 </div>
                             </div>
@@ -741,11 +767,11 @@
                         </p>
 
 
-                        <form action="comment javascript:0" method="POST" class="addComments">
+                        <form action="comment" method="POST" class="addComments">
                             {% csrf_token %}
                             <input type="hidden" name="post_id" value="{{ post.id }}">
                             <input type="text" name="comment" class="text" placeholder="Add a comment...">
-                            <a href="/">Post</a>
+                            <button class="button bg-blue-700" type="submit">Post</button>
                         </form>
                     </div>
                 </div>
@@ -793,6 +819,27 @@
 
     // Adding click event listener to the SVG icon
     document.getElementById('commentIcon').addEventListener('click', showPopup);
+
+
+    var spanElement = document.getElementById("popupTrigger");
+    var popupList = document.getElementById("popupList");
+
+    // Add a click event listener to the span
+    spanElement.addEventListener("click", function() {
+        // Toggle the display of the popup list
+        if (popupList.style.display === "none") {
+            popupList.style.display = "block";
+        } else {
+            popupList.style.display = "none";
+        }
+    });
+
+    // Close the popup list if user clicks outside of it
+    window.addEventListener("click", function(event) {
+        if (event.target !== spanElement && event.target !== popupList && !popupList.contains(event.target)) {
+            popupList.style.display = "none";
+        }
+    });
 
     
     //like without referesh using Ajax
