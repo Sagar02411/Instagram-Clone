@@ -232,7 +232,7 @@ class ProfileView(View):
             'user_following': user_following,
         }
         print(context)
-        return render(request, 'profile.html', context)        
+        return render(request, 'testprofile.html', context)        
 
     def post(self, request, pk):
         print("profile view feature")
