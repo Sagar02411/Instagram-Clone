@@ -377,6 +377,8 @@ class UserSearchView(View):
             username_profile_list.append(profile_lists)
         
         username_profile_list = list(chain(*username_profile_list))
-        # print(username_profile_list)
-        return render(request, 'search.html', {'username_profile_list': username_profile_list})
+
+        user_object = User.objects.filter(username=request.user.username).first()
+        user_profile = Profile.objects.filter(user=user_object).first()
+        return render(request, 'testsearch.html', {'username_profile_list': username_profile_list, 'user_profile': user_profile})
 
