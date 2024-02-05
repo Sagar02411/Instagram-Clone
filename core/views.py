@@ -49,6 +49,14 @@ class IndexView(View):
         suggestions_username_profile_list = Profile.objects.filter(user__in=final_suggestions_list[:4])
  
         display_user = request.user.username 
+        print('*'*30)
+        print({
+            'user_profile': user_profile,
+            'posts': posts,
+            'suggestions_username_profile_list': suggestions_username_profile_list,
+            'user': display_user,
+            'comments_dict': comments_dict,
+        })
  
         return render(request, 'testindex.html', {
             'user_profile': user_profile,
@@ -187,8 +195,7 @@ class LikePostView(View):
         dic = {
             likes: likes
         }
-        # print("*"*25,dic)
-        # return JsonResponse(dic, safe=False)
+
         return redirect('/')
 
     def post(self, request):
@@ -318,7 +325,7 @@ class CommentView(View):
             post = Post.objects.get(pk=post_id)
             Comment.objects.create(post=post, user=request.user, comment=comment_text)
 
-        return redirect('index')
+        return redirect('/')
 
 class CommentDeleteView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
