@@ -194,13 +194,13 @@ class LikePostView(View):
             like_filter.delete()
             post.no_of_likes = post.no_of_likes-1
             post.save()
-        # likes = post.no_of_likes
-        # dic = {
-        #     likes:likes, Liked:Liked 
-        # }
+        likes = post.no_of_likes
+        dic = {
+            likes:likes, 
+            Liked:Liked 
+        }
 
-        # return JsonResponse(dic, safe=False)
-        return redirect('/')
+        return JsonResponse(likes, safe=False)
 
     def post(self, request):
         print("Like post")
