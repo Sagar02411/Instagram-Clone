@@ -382,3 +382,20 @@ class UserSearchView(View):
         user_profile = Profile.objects.filter(user=user_object).first()
         return render(request, 'testsearch.html', {'username_profile_list': username_profile_list, 'user_profile': user_profile})
 
+class ValidUsernameView(View):
+    def post(self, request):
+        username = request.POST['username']
+        print(username)
+        if User.objects.filter(username=username).exists():
+            return JsonResponse('Username already taken', safe=False)
+
+        return JsonResponse('', safe=False)
+
+class ValidEmailView(View):
+    def post(self, request):
+        email = request.POST['email']
+        print(email)
+        if User.objects.filter(email=email).exists():
+            return JsonResponse('email already taken', safe=False)
+
+        return JsonResponse('', safe=False)
