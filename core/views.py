@@ -11,11 +11,11 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
-
+from django.views.decorators.cache import cache_control
 
 
 class IndexView(View):
+    @method_decorator(cache_control(no_cache=True, must_revalidate=True, no_store=True))
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         user_object = User.objects.filter(username=request.user.username).first()
@@ -115,7 +115,7 @@ class SignupView(View):
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
                 new_profile.save()
-                return redirect('signin')
+                return redirect('/')
         else:
             messages.info(request, 'Password Not Matching')
             return redirect('signup')
@@ -130,14 +130,13 @@ class SigninView(View):
         password = request.POST['password']
 
         user = auth.authenticate(username=username, password=password)
-
-        if user is not None:
+        print(user)
+        if user == None:
+            messages.info(request, 'Credentials Invalid')
+            return redirect('signin')
+        else:
             auth.login(request, user)
             return redirect('/')
-        else:
-            messages.info(request, 'Credentials Invalid')
-            return 
-            ('signin')
 
 class LogoutView(View):
     def get(self, request):
@@ -366,6 +365,7 @@ class CommentReplyView(View):
         return redirect('/')
 
 class UserSearchView(View):
+    @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         username = request.POST['search_query']
         username_object = User.objects.filter(username__icontains=username)

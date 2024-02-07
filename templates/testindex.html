@@ -732,9 +732,11 @@
                                 {% for key, value in comments_dict.items %}
                                 {% if key == post %}
                                 {% for i in value%}
+                                {% if i.parent == None %}
                                     <ul><strong>{{ i.user }}</strong> {{ i.comment }}
                                         <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
-
+                                
+                                       
                                         <!-- <span class="dots" style="cursor: pointer;">
                                             <i id="options-icon-{{i.cmt_id}}" class="fas fa-ellipsis-h"></i>
                                         </span> -->
@@ -776,16 +778,21 @@
                                                 {%endif%}
                                             </ul>
                                         </div>
-
+                                        {% for reply in value %}
+                                        <br>
+                                        {% if reply.parent.id == i.cmt_id %}
+                                        <strong>{{ reply.user }}</strong> {{ reply.comment }}
+                                        <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
+                                        {%endif%}
+                                        {%endfor%}
                                     </ul>
                                     <hr>
+                                    {%endif%}
                                     {% endfor %}
                                     {% endif %}
                                     {% endfor %}
                                     <button value="{{post}}" onclick="closePopup(this.value)">Close</button>
                                 </div>
-                                    
-
                             </div>
                         </div>
 
