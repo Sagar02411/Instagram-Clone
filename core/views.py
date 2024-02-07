@@ -180,26 +180,25 @@ class LikePostView(View):
 
         like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
 
-        Liked = False
+        Liked = 0
 
         if like_filter == None:
             new_like = LikePost.objects.create(post_id=post_id, username=username)
             new_like.save()
             post.no_of_likes = post.no_of_likes+1
             post.save()
-            Liked = True
+            Liked = 1
 
         else:
             like_filter.delete()
             post.no_of_likes = post.no_of_likes-1
             post.save()
         likes = post.no_of_likes
-        dic = {
-            likes:likes, 
-            Liked:Liked 
+        context = {
+            'likes': likes,
+            'Liked': Liked
         }
-
-        return JsonResponse(likes, safe=False)
+        return JsonResponse(context,safe=False)
 
     def post(self, request):
         print("Like post")
