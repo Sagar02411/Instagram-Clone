@@ -692,12 +692,7 @@
                                     
                                     <span class="heart-{{post}}">
                                         <input type="hidden" id="post_id" name="post_id" value="{{post}}">
-                                        <svg id="heart-color-{{post}}" aria-label="Like" color="#262626" fill="#262626" height="24" role="img"
-                                            viewBox="0 0 48 48" width="24">
-                                            <path
-                                                d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z">
-                                            </path>
-                                        </svg>
+                                        <svg id="heart-color-{{post}}" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 4.661 5.571 9.427 12 15.808 6.43-6.381 12-11.147 12-15.808 0-6.792-8.875-8.306-12-2.944z"/></svg>
                                     </span>
     
                                     <!-- <a class="heart" href="/like-post?post_id={{post.id}}">
@@ -710,85 +705,8 @@
                                             </svg>
                                         </span>
                                     </a> -->
-                        
-                                    <svg aria-label="Comment" class="_8-yf5" color="#262626" fill="#262626" height="24"
-                                        role="img" viewBox="0 0 48 48" width="24" id="{{post}}">
-                                        <!-- Coordinate path -->
-                                        <path clip-rule="evenodd" d="M47.5 46.1l-2.8-11c1.8-3.3 2.8-7.1 2.8-11.1C47.5 
-                                            11 37 .5 24 .5S.5 11 .5 24 11 47.5 24 47.5c4 0 
-                                            7.8-1 11.1-2.8l11 2.8c.8.2 1.6-.6 1.4-1.4zm-3-22.1c0 
-                                            4-1 7-2.6 10-.2.4-.3.9-.2 1.4l2.1 
-                                            8.4-8.3-2.1c-.5-.1-1-.1-1.4.2-1.8 1-5.2 2.6-10 
-                                            2.6-11.4 0-20.6-9.2-20.6-20.5S12.7 3.5 24 3.5 
-                                            44.5 12.7 44.5 24z" fill-rule="evenodd">
-                                        </path>
-                                    </svg>
                                     
-                                    <div class="popup" id="commentIcon-{{key}}" style="overflow-y:auto; max-height: 300px">
-                                    {% for key, value in comments_dict.items %}
-                                    {% if key == post %}
-                                    {% for i in value%}
-                                    {% if i.parent == None %}
-                                        <ul><strong>{{ i.user }}</strong> {{ i.comment }}
-                                            <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
                                     
-                                           
-                                            <!-- <span class="dots" style="cursor: pointer;">
-                                                <i id="options-icon-{{i.cmt_id}}" class="fas fa-ellipsis-h"></i>
-                                            </span> -->
-    
-                                            <div class="options" id="options-list-{{i.cmt_id}}">
-                                                <ul>
-                                                    {% if i.cmt_id %}
-                                                    <span>
-                                                        </form>
-                                                        {% if i.user == user %}
-                                                        <form action="{% url 'comment-delete' i.cmt_id %}" method="POST">
-                                                            {% csrf_token %}
-                                                            <button type="submit">Delete</button>
-                                                        </form>
-                                                        <br>
-                                                        {%endif%}
-                                                    </span>
-                                                    <span>
-                                                        {% if i.user == user %}
-                                                        <form action="{% url 'comment-edit' i.cmt_id %}" method="POST">
-                                                            {% csrf_token %}
-                                                            <input type="text" name="commentedit"
-                                                                placeholder="comment edit  here!!">
-                                                            <button type="submit">Edit comment</button>
-                                                        </form>
-                                                        {%endif%}
-                                                    </span>
-                                                    <br>
-                                                    <span>
-                                                        <form action="commentreply" method="POST">
-                                                            {% csrf_token %}
-                                
-                                                            <input type="hidden" name="post_id" value="{{ post.id }}">
-                                                            <input type="hidden" name="parent_id" value="{{ i.cmt_id }}">
-                                                            <input type="text" name="commentreply" placeholder="reply to @{{i.user}}">
-                                                            <button type="submit">reply</button>
-                                                        </form>
-                                                    </span>
-                                                    {%endif%}
-                                                </ul>
-                                            </div>
-                                            {% for reply in value %}
-                                            <br>
-                                            {% if reply.parent.id == i.cmt_id %}
-                                            <strong>{{ reply.user }}</strong> {{ reply.comment }}
-                                            <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
-                                            {%endif%}
-                                            {%endfor%}
-                                        </ul>
-                                        <hr>
-                                        {%endif%}
-                                        {% endfor %}
-                                        {% endif %}
-                                        {% endfor %}
-                                        <button value="{{post}}" onclick="closePopup(this.value)">Close</button>
-                                    </div>
                                 </div>
                             </div>
     
@@ -798,13 +716,70 @@
                             <p class="message">
                                 <a href="/profile/{{post.user}}"><strong>{{post.user}}</a> {{post.caption}}</strong>
                             </p>
+                            
+                            <div  style="width:773px;overflow-y: auto;height: 100px;">
+                                    {% for key, value in comments_dict.items %}
+                                    {% if key == post %}
+                                    {% for i in value%}
+                                    {% if i.parent == None %}
+                                    <hr>
+                                        <ul><strong>{{ i.user }}</strong> {{ i.comment }}
+                                            <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
+                                    
     
-    
+                                            <div class="options" id="options-list-{{i.cmt_id}}">
+                                                <ul>
+                                                    {% if i.cmt_id %}
+                                                    <span>
+                                                        </form>
+                                                        {% if i.user == user %}
+                                                        <form action="{% url 'comment-delete' i.cmt_id %}" method="POST">
+                                                            {% csrf_token %}
+                                                            <button class="btn btn-outline-success" type="submit">Delete</button>
+                                                        </form>
+                                                        {%endif%}
+                                                    </span>
+                                                    <span>
+                                                        {% if i.user == user %}
+                                                        <form action="{% url 'comment-edit' i.cmt_id %}" method="POST">
+                                                            {% csrf_token %}
+                                                            <input type="text" name="commentedit"
+                                                                placeholder="comment edit  here!!">
+                                                            <button type="submit" class="btn btn-outline-success">Edit comment</button>
+                                                        </form>
+                                                        {%endif%}
+                                                    </span>
+                                                    <span>
+                                                        <form action="commentreply" method="POST">
+                                                            {% csrf_token %} 
+                                                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                                                            <input type="hidden" name="parent_id" value="{{ i.cmt_id }}">
+                                                            <input type="text" name="commentreply" placeholder="Reply to @{{i.user}}">
+                                                            <button class="btn btn-outline-success" type="submit">reply</button>
+                                                        </form>
+                                                    </span>
+                                                    {%endif%}
+                                                </ul>
+                                            </div>
+                                            {% for reply in value %}
+                                            {% if reply.parent.id == i.cmt_id %}
+                                            <strong>{{ reply.user }}</strong> {{ reply.comment }}
+                                            <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
+                                            <br>
+                                            {%endif%}
+                                            {%endfor%}
+                                        </ul>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                            
                             <form action="comment" method="POST" class="addComments">
                                 {% csrf_token %}
                                 <input type="hidden" name="post_id" value="{{ post.id }}">
                                 <input type="text" name="comment" class="text" placeholder="Add a comment...">
-                                <button class="button bg-blue-700" type="submit">Post</button>
+                                <button class="btn btn-outline-success" type="submit">Post</button>
                             </form>
                         </div>
                     </div>
