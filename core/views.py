@@ -85,7 +85,7 @@ class SignupView(View):
         email = request.POST['email']
         password = request.POST['password']
         password2 = request.POST['password2']
-    
+        
         try:
             validate_password(password, user=User)
         except ValidationError as e:
@@ -388,9 +388,11 @@ class UserSearchView(View):
 class ValidUsernameView(View):
     def post(self, request):
         username = request.POST['username']
-        print(username)
         if User.objects.filter(username=username).exists():
-            return JsonResponse('Username already taken', safe=False)
+            return JsonResponse('Username already taken!!', safe=False)
+        
+        if username.islower() == False:
+            return JsonResponse('Username must be in lower case!!', safe=False)
 
         return JsonResponse('', safe=False)
 
