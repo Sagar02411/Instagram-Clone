@@ -1,1 +1,4 @@
-'social_book/.env'
+social_book/env/
+my_env/
+myenv/
+__pycache__/

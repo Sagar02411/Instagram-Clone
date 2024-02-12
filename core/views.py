@@ -49,7 +49,6 @@ class IndexView(View):
         suggestions_username_profile_list = Profile.objects.filter(user__in=final_suggestions_list[:4])
  
         display_user = request.user.username 
-        print('*'*30)
         print({
             'user_profile': user_profile,
             'posts': posts,
@@ -70,9 +69,6 @@ class IndexView(View):
         #print("try")
         return redirect('/')
     
-    def post(self, request):
-        #print("try")
-        return redirect('/')
 
 class SignupView(View):
     def get(self, request):
@@ -404,3 +400,4 @@ class ValidEmailView(View):
             return JsonResponse('email already taken', safe=False)
 
         return JsonResponse('', safe=False)
+
