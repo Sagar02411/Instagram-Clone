@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Post, LikePost, FollowersCount, Message, Comment
+from .models import Profile, Post, LikePost, FollowersCount, Comment
 from itertools import chain
 from django.views import View
 import random

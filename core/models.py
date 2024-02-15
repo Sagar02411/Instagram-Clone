@@ -42,15 +42,6 @@ class FollowersCount(models.Model):
 
     def __str__(self):
         return self.user
-    
-class Message(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True)
-    content = models.TextField(default=None, null=True)
-    created_at = models.DateTimeField(default=datetime.now, null=True)
-
-    def __str__(self):
-        return self.content
-
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comment")
@@ -66,4 +57,29 @@ class Comment(models.Model):
     def soft_delete(self):
         self.active = False
         self.save()
+        
+class ThreadManager(models.Manager):
+    def by_user(self, **kwargs):
+        user = kwargs.get('user')
+        lookup = Q(first_person=user) | Q(second_person=user)
+        qs = self.get_queryset().filter(lookup).distinct()
+        return qs
 
+
+class Thread(models.Model):
+    first_person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='thread_first_person')
+    second_person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
+                                     related_name='thread_second_person')
+    updated = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    objects = ThreadManager()
+    class Meta:
+        unique_together = ['first_person', 'second_person']
+
+
+class ChatMessage(models.Model):
+    thread = models.ForeignKey(Thread, null=True, blank=True, on_delete=models.CASCADE, related_name='chatmessage_thread')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
