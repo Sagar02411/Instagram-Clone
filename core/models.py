@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 import uuid
 from datetime import datetime
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -43,14 +44,13 @@ class FollowersCount(models.Model):
         return self.user
     
 class Message(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
-    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    body = models.TextField()
-    is_read = models.BooleanField(default=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True)
+    content = models.TextField(default=None, null=True)
+    created_at = models.DateTimeField(default=datetime.now, null=True)
 
     def __str__(self):
-        return f"{self.sender} to {self.recipient} - {self.timestamp}"
+        return self.content
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comment")
@@ -66,3 +66,4 @@ class Comment(models.Model):
     def soft_delete(self):
         self.active = False
         self.save()
+

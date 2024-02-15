@@ -14,6 +14,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 
 
+
+
 class IndexView(View):
     @method_decorator(cache_control(no_cache=True, must_revalidate=True, no_store=True))
     @method_decorator(login_required(login_url='signin'), name='signin')
@@ -38,7 +40,7 @@ class IndexView(View):
                     comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date, 'cmt_id': obj.id})
             comments_dict[post1] = comments_list
 
-        print("line number 39",comments_dict)
+        # print("line number 39",comments_dict)
         
         all_users = User.objects.all()
         user_following_all = [User.objects.get(username=user.user) for user in FollowersCount.objects.filter(follower=request.user.username)]
@@ -289,33 +291,6 @@ class SettingsVew(View):
             user_profile.save()
         
         return redirect('settings')
-    
-class InboxView(View):
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def get(self, request):
-        print(request.user)
-        messages = Message.objects.filter(recipient=request.user, is_read=False)
-        print(messages)
-        return render(request, 'inbox.html', {'messages': messages})
-
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def post(self, request):
-        user = request.user
-        messages = Message.objects.filter(recipient=user, is_read=False)
-        # ... rest of your code ...
-        pass
-
-class SendMessageView(View):
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def get(self, request, recipient_username):
-        return render(request, 'send_message.html', {'recipient_username': recipient_username})
-
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def post(self, request, recipient_username):
-        body = request.POST.get('body')
-        recipient = User.objects.get(username=recipient_username)
-        Message.objects.create(sender=request.user, recipient=recipient, body=body)
-        return redirect('inbox')
 
 class CommentView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
@@ -376,6 +351,7 @@ class UserSearchView(View):
             username_profile.append(users.id)
 
         for ids in username_profile:
+            
             profile_lists = Profile.objects.filter(id_user=ids)
             username_profile_list.append(profile_lists)
         
@@ -404,3 +380,6 @@ class ValidEmailView(View):
             return JsonResponse('email already taken', safe=False)
 
         return JsonResponse('', safe=False)
+
+def messages_view(request):
+    return render(request, 'testmessages.html')
