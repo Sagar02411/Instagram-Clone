@@ -5,6 +5,14 @@
 	<br>
 	{% if request.user.is_authenticated %}
 	{% endif %}
+
+	<select id="receiver-select">
+		<option value="">Select a user</option>
+		{% for user in all_users %}
+		  <option value="{{ user.username }}">{{ user.username }}</option>
+		{% endfor %}
+	  </select>
+
 	<div
 	class="chat__item__container"
 	id="id_chat_item_container"
@@ -17,7 +25,7 @@
 	<br />
 	</div>
 	<script>
-    let url = `ws://${window.location.host}/ws/socket-server/`
+    let url = `ws://${window.location.host}/ws/socket-server/` 
 	const chatSocket = new WebSocket(url);
 	chatSocket.onopen = function (e) {
 		console.log("The connection was setup successfully !");
@@ -32,15 +40,15 @@
 		}
 	};
 	document.querySelector("#id_message_send_button").onclick = function (e) {
-		var messageInput = document.querySelector(
-		"#id_message_send_input"
-		).value;
-		chatSocket.send(JSON.stringify({ message: messageInput, username : "{{request.user.username}}"}));
+	var messageInput = document.querySelector("#id_message_send_input").value;
+	var receiver = document.querySelector("#receiver-select").value;
+	chatSocket.send(JSON.stringify({ message: messageInput, receiver: receiver }));
 	};
 	chatSocket.onmessage = function (e) {
+		debugger;
 		const data = JSON.parse(e.data);
 		var div = document.createElement("div");
-		div.innerHTML = data.username + " : " + data.message;
+		div.innerHTML = data.sender + " : " + data.message;
 		document.querySelector("#id_message_send_input").value = "";
 		document.querySelector("#id_chat_item_container").appendChild(div);
 	};

@@ -11,9 +11,9 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
     profileimg = models.ImageField(upload_to='profile_images', default='blank-profile-picture.png')
-    # created_at = models.DateTimeField(auto_now_add=True, null=True)
-    # updated_at = models.DateTimeField(auto_now_add=True, null=True)
-    # deleted_at = models.DateTimeField(auto_now_add=True, null=True)
+    # created_at = models.DateTimeField(null=True)
+    # updated_at = models.DateTimeField(null=True)
+    # deleted_at = models.DateTimeField(null=True)
     # isactive = models.BooleanField(default=True)
 
     def __str__(self):
@@ -57,29 +57,9 @@ class Comment(models.Model):
     def soft_delete(self):
         self.active = False
         self.save()
-        
-class ThreadManager(models.Manager):
-    def by_user(self, **kwargs):
-        user = kwargs.get('user')
-        lookup = Q(first_person=user) | Q(second_person=user)
-        qs = self.get_queryset().filter(lookup).distinct()
-        return qs
 
-
-class Thread(models.Model):
-    first_person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='thread_first_person')
-    second_person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
-                                     related_name='thread_second_person')
-    updated = models.DateTimeField(auto_now=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    objects = ThreadManager()
-    class Meta:
-        unique_together = ['first_person', 'second_person']
-
-
-class ChatMessage(models.Model):
-    thread = models.ForeignKey(Thread, null=True, blank=True, on_delete=models.CASCADE, related_name='chatmessage_thread')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    message = models.TextField()
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)

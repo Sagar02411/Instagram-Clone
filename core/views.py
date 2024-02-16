@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
-
+from asgiref.sync import sync_to_async
 
 
 
@@ -379,7 +379,9 @@ class ValidEmailView(View):
         if User.objects.filter(email=email).exists():
             return JsonResponse('email already taken', safe=False)
 
+
         return JsonResponse('', safe=False)
 
 def messages_view(request):
-    return render(request, 'testmessages.html')
+    all_users = User.objects.all()    
+    return render(request, 'testmessages.html', {'all_users': all_users})

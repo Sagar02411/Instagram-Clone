@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'social_django',
     'core'
+
 ]
 
 ASGI_APPLICATION = 'social_book.asgi.application'
@@ -166,3 +167,5 @@ LOGIN_REDIRECT_URL = 'http://localhost:8000'
 ELASTICSEARCH_DSL = {
     "default": {"hosts": "elasticsearch:9200"},
 }
+
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
