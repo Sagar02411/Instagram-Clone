@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 import uuid
 from datetime import datetime
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -10,10 +11,11 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
     profileimg = models.ImageField(upload_to='profile_images', default='blank-profile-picture.png')
-    # created_at = models.DateTimeField(auto_now_add=True, null=True)
-    # updated_at = models.DateTimeField(auto_now_add=True, null=True)
-    # deleted_at = models.DateTimeField(auto_now_add=True, null=True)
-    # isactive = models.BooleanField(default=True)
+    created_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
+    is_public = models.BooleanField(default=True)
+    isactive = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.username
@@ -41,16 +43,6 @@ class FollowersCount(models.Model):
 
     def __str__(self):
         return self.user
-    
-class Message(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
-    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    body = models.TextField()
-    is_read = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.sender} to {self.recipient} - {self.timestamp}"
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comment")
@@ -66,3 +58,13 @@ class Comment(models.Model):
     def soft_delete(self):
         self.active = False
         self.save()
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+# class Hashtags(models.Model):
+#     post_id = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="hashtag")
+#     hashtages = models.TextField()

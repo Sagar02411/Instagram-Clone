@@ -36,6 +36,8 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +48,10 @@ INSTALLED_APPS = [
     'social_django',
     'core'
 ]
+
+ASGI_APPLICATION = 'social_book.asgi.application'
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -59,9 +65,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3030',
-]
 
 ROOT_URLCONF = 'social_book.urls'
 
@@ -153,10 +156,15 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('SECRET')
 
 LOGIN_URL = 'signin'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'http://localhost:8000'  
 
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": "elasticsearch:8000"},
+}
+
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
