@@ -11,10 +11,11 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
     profileimg = models.ImageField(upload_to='profile_images', default='blank-profile-picture.png')
-    # created_at = models.DateTimeField(null=True)
-    # updated_at = models.DateTimeField(null=True)
-    # deleted_at = models.DateTimeField(null=True)
-    # isactive = models.BooleanField(default=True)
+    created_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
+    is_public = models.BooleanField(default=True)
+    isactive = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.username
@@ -63,3 +64,7 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+# class Hashtags(models.Model):
+#     post_id = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="hashtag")
+#     hashtages = models.TextField()

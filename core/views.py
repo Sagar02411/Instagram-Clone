@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from asgiref.sync import sync_to_async
-
+from .elasticsearch import search_users
 
 
 class IndexView(View):
@@ -163,10 +163,19 @@ class UploadView(View):
         
 
         if not image.content_type.startswith('image/'):
-            return HttpResponseBadRequest("Only JPEG and PNG images are allowed.")
+            return HttpResponseBadRequest("Only JPEG and PNG images are allowed.")  
 
         caption = request.POST['caption']
 
+        hashtages = []
+
+        for word in caption.split():
+            if '#' in word:
+                index = word.index('#')
+                if index < len(word) - 1:
+                    hashtages.append(word[index + 1:])
+                    
+        print(hashtages)
         new_post = Post.objects.create(user=user, image=image, caption=caption)
         new_post.save()
 
@@ -209,7 +218,7 @@ class LikePostView(View):
 class ProfileView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request, pk):
-        #print("*"*50)
+        
         user_object = User.objects.filter(username=pk).first()  
         print(user_object)
         if user_object is None:
@@ -274,7 +283,6 @@ class SettingsVew(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         user_profile = Profile.objects.get(user=request.user)
-        print("*" * 50, "Setting button")
         return render(request, 'setting.html', {'user_profile': user_profile})
 
     @method_decorator(login_required(login_url='signin'), name='signin')
@@ -342,7 +350,7 @@ class UserSearchView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         username = request.POST['search_query']
-        username_object = User.objects.filter(username__icontains=username)
+        username_object = User.objects.filter(username__startswith=username)
 
         username_profile = []
         username_profile_list = []
