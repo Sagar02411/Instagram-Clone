@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 social_book/env/
 my_env/
 myenv/
 __pycache__/
+=======
+social_book/.env
+my_env
+test_env
+>>>>>>> 296c764701592970fd02c9468a4201e32c3bdee3

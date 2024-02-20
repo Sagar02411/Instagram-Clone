@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Post, LikePost, FollowersCount, Message, Comment
+from .models import Profile, Post, LikePost, FollowersCount, Comment
 from itertools import chain
 from django.views import View
 import random
@@ -12,6 +12,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
+from asgiref.sync import sync_to_async
+from .elasticsearch import search_users
 
 
 class IndexView(View):
@@ -38,7 +40,7 @@ class IndexView(View):
                     comments_list.append({'user': obj.user.username, 'comment': obj.comment, 'date': obj.date, 'cmt_id': obj.id})
             comments_dict[post1] = comments_list
 
-        print("line number 39",comments_dict)
+        # print("line number 39",comments_dict)
         
         all_users = User.objects.all()
         user_following_all = [User.objects.get(username=user.user) for user in FollowersCount.objects.filter(follower=request.user.username)]
@@ -157,10 +159,19 @@ class UploadView(View):
         
 
         if not image.content_type.startswith('image/'):
-            return HttpResponseBadRequest("Only JPEG and PNG images are allowed.")
+            return HttpResponseBadRequest("Only JPEG and PNG images are allowed.")  
 
         caption = request.POST['caption']
 
+        hashtages = []
+
+        for word in caption.split():
+            if '#' in word:
+                index = word.index('#')
+                if index < len(word) - 1:
+                    hashtages.append(word[index + 1:])
+                    
+        print(hashtages)
         new_post = Post.objects.create(user=user, image=image, caption=caption)
         new_post.save()
 
@@ -203,7 +214,7 @@ class LikePostView(View):
 class ProfileView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request, pk):
-        #print("*"*50)
+        
         user_object = User.objects.filter(username=pk).first()  
         print(user_object)
         if user_object is None:
@@ -268,7 +279,6 @@ class SettingsVew(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         user_profile = Profile.objects.get(user=request.user)
-        print("*" * 50, "Setting button")
         return render(request, 'setting.html', {'user_profile': user_profile})
 
     @method_decorator(login_required(login_url='signin'), name='signin')
@@ -285,33 +295,6 @@ class SettingsVew(View):
             user_profile.save()
         
         return redirect('settings')
-    
-class InboxView(View):
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def get(self, request):
-        print(request.user)
-        messages = Message.objects.filter(recipient=request.user, is_read=False)
-        print(messages)
-        return render(request, 'inbox.html', {'messages': messages})
-
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def post(self, request):
-        user = request.user
-        messages = Message.objects.filter(recipient=user, is_read=False)
-        # ... rest of your code ...
-        pass
-
-class SendMessageView(View):
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def get(self, request, recipient_username):
-        return render(request, 'send_message.html', {'recipient_username': recipient_username})
-
-    @method_decorator(login_required(login_url='signin'), name='signin')
-    def post(self, request, recipient_username):
-        body = request.POST.get('body')
-        recipient = User.objects.get(username=recipient_username)
-        Message.objects.create(sender=request.user, recipient=recipient, body=body)
-        return redirect('inbox')
 
 class CommentView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
@@ -363,7 +346,7 @@ class UserSearchView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         username = request.POST['search_query']
-        username_object = User.objects.filter(username__icontains=username)
+        username_object = User.objects.filter(username__startswith=username)
 
         username_profile = []
         username_profile_list = []
@@ -372,6 +355,7 @@ class UserSearchView(View):
             username_profile.append(users.id)
 
         for ids in username_profile:
+            
             profile_lists = Profile.objects.filter(id_user=ids)
             username_profile_list.append(profile_lists)
         
@@ -399,5 +383,5 @@ class ValidEmailView(View):
         if User.objects.filter(email=email).exists():
             return JsonResponse('email already taken', safe=False)
 
-        return JsonResponse('', safe=False)
 
+        return JsonResponse('', safe=False)

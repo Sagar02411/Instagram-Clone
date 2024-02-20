@@ -1,9 +1,0 @@
-{% block content %}
-  <h2>Send Message to {{ recipient_username }}</h2>
-  <form method="post" action="{% url 'send-message' recipient_username %}">
-    {% csrf_token %}
-    <textarea name="body" rows="4" cols="50" required></textarea>
-    <br>
-    <button type="submit">Send Message</button>
-  </form>
-{% endblock %}
