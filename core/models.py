@@ -40,7 +40,7 @@ class LikePost(models.Model):
 class FollowersCount(models.Model):   
     follower = models.CharField(max_length=100, default='name')
     user = models.CharField(max_length=100)
-    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')], default='pending')
+    status = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user
