@@ -16,7 +16,6 @@
    ```
    .\<your environment>\Scripts\activate
    ```
-   git
 4. Install dependencies:
  
     ```
