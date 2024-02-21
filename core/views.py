@@ -89,6 +89,10 @@ class SignupView(View):
         if username.lower() in password.lower():
             messages.info(request, 'Password should not contain the username')
             return redirect('signup')
+
+        if password.isspace():
+            messages.info(request, 'Password should not contain only space')
+            return redirect('signup')
         
         if password == password2:
             if User.objects.filter(email=email).exists():
@@ -317,6 +321,10 @@ class CommentView(View):
         post_id = request.POST.get('post_id')
         comment_text = request.POST.get('comment')
 
+        if comment_text.isspace():
+            messages.info(request, 'Comment should not contain the only space', extra_tags='comment')
+            return redirect('/')
+
         if post_id and comment_text:
             post = Post.objects.get(pk=post_id)
             Comment.objects.create(post=post, user=request.user, comment=comment_text)
@@ -339,7 +347,13 @@ class CommentEditView(View):
         comment_id = kwargs.get('comment_id')
         comment = get_object_or_404(Comment, id=comment_id)
         print("*"*50, request.POST.get('comment'))
-        comment.comment = request.POST.get('commentedit')
+        comment_text = request.POST.get('commentedit')
+        
+        if comment_text.isspace():
+            messages.info(request, 'Comment should not contain the only space', extra_tags='comment')
+            return redirect('/')
+
+        comment.comment = comment_text
         comment.save()
         return redirect('/')
 
@@ -351,6 +365,10 @@ class CommentReplyView(View):
         parent_id = request.POST.get('parent_id')
         parent = Comment.objects.get(id=parent_id)
 
+        if comment_text.isspace():
+            messages.info(request, 'Comment should not contain the only space', extra_tags='comment')
+            return redirect('/')
+
         if post_id and comment_text:
             post = Post.objects.get(pk=post_id)
             Comment.objects.create(post=post, user=request.user, comment=comment_text, parent=parent)
@@ -361,6 +379,9 @@ class UserSearchView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
         username = request.POST['search_query']
+        if username.isspace():
+            messages.info(request, 'Username should not contain the only space', extra_tags='search')
+            return redirect('/')
         username_object = User.objects.filter(username__startswith=username)
 
         username_profile = []

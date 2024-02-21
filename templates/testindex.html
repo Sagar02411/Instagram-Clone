@@ -637,59 +637,66 @@
                     </a>
                 </div>
                 <div class="searchbar">
+                    {% for message in messages %}
+                    {% if "search" in message.tags %}
+                    <h5 style="color: red;">{{message}}</h5>
+                    {%endif%}
+                    {% endfor %}
                     <img src="https://media.geeksforgeeks.org/wp-content/uploads/20220609093658/search-200x200.png"
                         height="18" alt="img2">
                     <form class="d-flex" role="search" method="POST" action="search">
                         {% csrf_token %}
                         <input class="form-control me-2" type="search" placeholder="Search" name="search_query" required
                             aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit" >Search</button>
+                        <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                 </div>
                 <div class="nav-links">
                     <ul class="nav-group">
                         <li class="nav-item">
-                            <li class="nav-item">
-                                <span class="material-symbols-outlined" id="openModal_request" style="margin-top: 3px; cursor: pointer;">
-                                    favorite
-                                </span>
-                                <div id="myModal_request" class="modal_request">
-                                    <span class="close_request" onclick="closeModal_request()"></span>
-                                    <div class="modal-content_request">
-                                       {% for request in pending_follow_request %}
-                                       <form class="d-flex" role="accept-follow-request" method="POST" action="accept">
-                                        {% csrf_token %}
-                                            <h4>
-                                                {{request.follower}}
-                                                <input type="hidden" value="{{request.user}}" name="follower" />
-					                            <input type="hidden" value="{{request.follower}}" name="user" />
-                                                <button type="submit" class="btn btn-primary" style="height: 37px; width: 75px; margin-left: 15px">Accept</button>
-                                            </h4>
-                                    </form>
-                                       {%endfor%}
-                                    </div>
-                                </div>
-                            </li>
-                            <span style="cursor: pointer;" class="material-symbols-outlined" id="openModal">
-                                upload_2
+                        <li class="nav-item">
+                            <span class="material-symbols-outlined" id="openModal_request"
+                                style="margin-top: 3px; cursor: pointer;">
+                                favorite
                             </span>
-                            <div id="myModal" class="modal">
-                                <span class="close" onclick="closeModal()">&times;</span>
-                                <div class="modal-content">
-                                    <!-- Your form code -->
-                                    <form action="upload" method="POST" enctype="multipart/form-data">
+                            <div id="myModal_request" class="modal_request">
+                                <span class="close_request" onclick="closeModal_request()"></span>
+                                <div class="modal-content_request">
+                                    {% for request in pending_follow_request %}
+                                    <form class="d-flex" role="accept-follow-request" method="POST" action="accept">
                                         {% csrf_token %}
-                                        <p class="my-3 leading-6"> Upload pics </p>
-                                        <div>
-                                            <input type="file" name="image_upload" required>
-                                            <textarea class="button soft-warning small" name="caption"
-                                                placeholder="Caption..." required></textarea>
-                                            <br>
-                                            <button class="button bg-blue-700" type="submit">Upload</button>
-                                        </div>
+                                        <h4>
+                                            {{request.follower}}
+                                            <input type="hidden" value="{{request.user}}" name="follower" />
+                                            <input type="hidden" value="{{request.follower}}" name="user" />
+                                            <button type="submit" class="btn btn-primary"
+                                                style="height: 37px; width: 75px; margin-left: 15px">Accept</button>
+                                        </h4>
                                     </form>
+                                    {%endfor%}
                                 </div>
                             </div>
+                        </li>
+                        <span style="cursor: pointer;" class="material-symbols-outlined" id="openModal">
+                            upload_2
+                        </span>
+                        <div id="myModal" class="modal">
+                            <span class="close" onclick="closeModal()">&times;</span>
+                            <div class="modal-content">
+                                <!-- Your form code -->
+                                <form action="upload" method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <p class="my-3 leading-6"> Upload pics </p>
+                                    <div>
+                                        <input type="file" name="image_upload" required>
+                                        <textarea class="button soft-warning small" name="caption"
+                                            placeholder="Caption..." required></textarea>
+                                        <br>
+                                        <button class="button bg-blue-700" type="submit">Upload</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
 
                         </li>
                         <li class="nav-item">
@@ -714,132 +721,142 @@
     </header>
 
     <main>
-            <div class="container">
-                <div class="col-9">
-    
-                    {% for post in posts reversed %}
-                    <div class="card">
-                        <div class="top">
-                            <div class="userDetails">
-                                <div class="profilepic">
-                                    
-                                </div>
-                                <h3>
-                                    <span class="block font-semibold "><a
-                                            href="/profile/{{post.user}}">@{{post.user}}</a></span>
-                                </h3>
+        <div class="container">
+            <div class="col-9">
+
+                {% for post in posts reversed %}
+                <div class="card">
+                    <div class="top">
+                        <div class="userDetails">
+                            <div class="profilepic">
+
+                            </div>
+                            <h3>
+                                <span class="block font-semibold "><a
+                                        href="/profile/{{post.user}}">@{{post.user}}</a></span>
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="imgBx" id="avatar">
+                        <img src="media/{{post.image}}" alt="">
+                    </div>
+                    <div class="bottom">
+                        <div class="actionBtns">
+                            <div class="left">
+                                <!-- <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}"> -->
+
+                                <span class="heart-{{post}}" style="cursor: pointer;">
+                                    <input type="hidden" id="post_id" name="post_id" value="{{post}}">
+                                    <svg id="heart-color-{{post}}" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 4.661 5.571 9.427 12 15.808 6.43-6.381 12-11.147 12-15.808 0-6.792-8.875-8.306-12-2.944z" />
+                                    </svg>
+                                </span>
                             </div>
                         </div>
-                        <div class="imgBx" id="avatar">
-                            <img src="media/{{post.image}}" alt="">
-                        </div>
-                        <div class="bottom">
-                            <div class="actionBtns">
-                                <div class="left">
-                                    <!-- <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}"> -->
-                                    
-                                    <span class="heart-{{post}}" style="cursor: pointer;">
-                                        <input type="hidden" id="post_id" name="post_id" value="{{post}}">
-                                        <svg id="heart-color-{{post}}" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 4.661 5.571 9.427 12 15.808 6.43-6.381 12-11.147 12-15.808 0-6.792-8.875-8.306-12-2.944z"/></svg>
-                                    </span>
-                                </div>
-                            </div>
-    
-                            <p id="likes-{{post}}">{{post.no_of_likes}}</p>
-    
-    
-                            <p class="message">
-                                <a href="/profile/{{post.user}}"><strong>{{post.user}}</a> {{post.caption}}</strong>
-                            </p>
-                            
-                            <div  style="width:773px;overflow-y: auto;height: 100px;">
-                                    {% for key, value in comments_dict.items %}
-                                    {% if key == post %}
-                                    {% for i in value%}
-                                    {% if i.parent == None %}
-                                    <hr>
-                                        <ul><strong>{{ i.user }}</strong> {{ i.comment }}
-                                            <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
-                                    
-    
-                                            <div class="options" id="options-list-{{i.cmt_id}}">
-                                                <ul>
-                                                    {% if i.cmt_id %}
-                                                    <span>
-                                                        </form>
-                                                        {% if i.user == user %}
-                                                        <form action="{% url 'comment-delete' i.cmt_id %}" method="POST">
-                                                            {% csrf_token %}
-                                                            <button class="btn btn-outline-success" type="submit">Delete</button>
-                                                        </form>
-                                                        {%endif%}
-                                                    </span>
-                                                    <span>
-                                                        {% if i.user == user %}
-                                                        <form action="{% url 'comment-edit' i.cmt_id %}" method="POST">
-                                                            {% csrf_token %}
-                                                            <input type="text" name="commentedit"
-                                                                placeholder="comment edit  here!!">
-                                                            <button type="submit" class="btn btn-outline-success">Edit comment</button>
-                                                        </form>
-                                                        {%endif%}
-                                                    </span>
-                                                    <span>
-                                                        <form action="commentreply" method="POST">
-                                                            {% csrf_token %} 
-                                                            <input type="hidden" name="post_id" value="{{ post.id }}">
-                                                            <input type="hidden" name="parent_id" value="{{ i.cmt_id }}">
-                                                            <input type="text" name="commentreply" placeholder="Reply to @{{i.user}}">
-                                                            <button class="btn btn-outline-success" type="submit">reply</button>
-                                                        </form>
-                                                    </span>
-                                                    {%endif%}
-                                                </ul>
-                                            </div>
-                                            {% for reply in value %}
-                                            {% if reply.parent.id == i.cmt_id %}
-                                            <strong>{{ reply.user }}</strong> {{ reply.comment }}
-                                            <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
-                                            <br>
+
+                        <p id="likes-{{post}}">{{post.no_of_likes}}</p>
+
+
+                        <p class="message">
+                            <a href="/profile/{{post.user}}"><strong>{{post.user}}</a> {{post.caption}}</strong>
+                        </p>
+
+                        <div style="width:773px;overflow-y: auto;height: 100px;">
+                            {% for message in messages %}
+                            {% if "comment" in message.tags %}
+                            <h5 style="color: red;">{{message}}</h5>
+                            {%endif%}
+                            {% endfor %}
+                            {% for key, value in comments_dict.items %}
+                            {% if key == post %}
+                            {% for i in value%}
+                            {% if i.parent == None %}
+                            <hr>
+                            <ul><strong>{{ i.user }}</strong> {{ i.comment }}
+                                <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
+
+
+                                <div class="options" id="options-list-{{i.cmt_id}}">
+                                    <ul>
+                                        {% if i.cmt_id %}
+                                        <span>
+                                            </form>
+                                            {% if i.user == user or post.user == i.user %}
+                                            <form action="{% url 'comment-delete' i.cmt_id %}" method="POST">
+                                                {% csrf_token %}
+                                                <button class="btn btn-outline-success" type="submit">Delete</button>
+                                            </form>
                                             {%endif%}
-                                            {%endfor%}
-                                        </ul>
+                                        </span>
+                                        <span>
+                                            {% if i.user == user %}
+                                            <form action="{% url 'comment-edit' i.cmt_id %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="text" name="commentedit"
+                                                    placeholder="comment edit  here!!">
+                                                <button type="submit" class="btn btn-outline-success">Edit
+                                                    comment</button>
+                                            </form>
+                                            {%endif%}
+                                        </span>
+                                        <span>
+                                            <form action="commentreply" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                                <input type="hidden" name="parent_id" value="{{ i.cmt_id }}">
+                                                <input type="text" name="commentreply"
+                                                    placeholder="Reply to @{{i.user}}" required>
+                                                <button class="btn btn-outline-success" type="submit">reply</button>
+                                            </form>
+                                        </span>
                                         {%endif%}
-                                        {% endfor %}
-                                        {% endif %}
-                                        {% endfor %}
-                                    </div>
-                            
-                            <form action="comment" method="POST" class="addComments">
-                                {% csrf_token %}
-                                <input type="hidden" name="post_id" value="{{ post.id }}">
-                                <input type="text" name="comment" class="text" placeholder="Add a comment...">
-                                <button class="btn btn-outline-success" type="submit">Post</button>
-                            </form>
+                                    </ul>
+                                </div>
+                                {% for reply in value %}
+                                {% if reply.parent.id == i.cmt_id %}
+                                <strong>{{ reply.user }}</strong> {{ reply.comment }}
+                                <span class="time" style="color: #777;font-size: 12px;">{{i.date}}</span>
+                                <br>
+                                {%endif%}
+                                {%endfor%}
+                            </ul>
+                            {%endif%}
+                            {% endfor %}
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <form action="comment" method="POST" class="addComments">
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="text" name="comment" class="text" placeholder="Add a comment..." required>
+                            <button class="btn btn-outline-success" type="submit">Post</button>
+                        </form>
+                    </div>
+                </div>
+                {%endfor%}
+            </div>
+            <div class="col-3">
+                <div class="card">
+                    <h4>Suggestions For You</h4>
+                    {% for suggestion in suggestions_username_profile_list %}
+                    <div class="top">
+                        <div class="userDetails">
+
+                            <h3>{{suggestion.user}}<br>
+                            </h3>
+                        </div>
+                        <div>
+                            <a href="/profile/{{suggestion.user}}" class="follow">View
+                            </a>
                         </div>
                     </div>
                     {%endfor%}
                 </div>
-                <div class="col-3">
-                    <div class="card">
-                        <h4>Suggestions For You</h4>
-                        {% for suggestion in suggestions_username_profile_list %}
-                        <div class="top">
-                            <div class="userDetails">
-                                
-                                <h3>{{suggestion.user}}<br>
-                                </h3>
-                            </div>
-                            <div>
-                                <a href="/profile/{{suggestion.user}}"
-                                   class="follow">View
-                                 </a>
-                            </div>
-                        </div>
-                        {%endfor%}  
-                    </div>
-                </div>
             </div>
+        </div>
     </main>
 </body>
 
@@ -902,12 +919,12 @@
     }
 
     // Function to close the popup
-    
+
     function closePopup(event) {
-        document.getElementById(event).parentElement.children[2].style.display="none"
+        document.getElementById(event).parentElement.children[2].style.display = "none"
     }
 
-    $( document ).ready(function() {
+    $(document).ready(function () {
         {% for key, value in comments_dict.items %}
         // Adding click event listener to the SVG icon
         document.getElementById('{{key}}').addEventListener('click', showPopup);
@@ -924,7 +941,7 @@
 
     //         var optionsIcon = document.getElementById('{{i.cmt_id}}');
     //         var optionsList = document.getElementById('{{i.cmt_id}}');
-        
+
     //         optionsIcon.addEventListener('click', function () {
     //             optionsList.classList.toggle('show-options');
     //         });
@@ -939,7 +956,7 @@
 
     // like without referesh using Ajax
     {% for post in posts %}
-    $('.heart-{{post}}').on('click', function() {
+    $('.heart-{{post}}').on('click', function () {
         //debugger;
         post_id = document.getElementById('post_id').value
         //console.log(post_id)
@@ -958,9 +975,9 @@
                 $('#likes-{{post}}').text(response.likes);
                 debugger;
                 if (response.Liked) {
-                    document.getElementById('heart-color-{{post}}').style.fill="red"
+                    document.getElementById('heart-color-{{post}}').style.fill = "red"
                 } else {
-                    document.getElementById('heart-color-{{post}}').style.fill="#262626"
+                    document.getElementById('heart-color-{{post}}').style.fill = "#262626"
                 }
             },
             error: (xhr, errmsg, err) => {
@@ -968,7 +985,7 @@
             }
         })
     })
-    {%endfor%}
+    {% endfor %}
 
 </script>
 
