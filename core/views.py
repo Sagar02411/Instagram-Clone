@@ -51,7 +51,7 @@ class IndexView(View):
         suggestions_username_profile_list = Profile.objects.filter(user__in=final_suggestions_list[:4])
  
         display_user = request.user.username 
-        pending_follow_request = FollowersCount.objects.filter(follower = request.user.username, status='pending')
+        pending_follow_request = FollowersCount.objects.filter(user = request.user.username, status='pending')
         print(pending_follow_request)
         return render(request, 'testindex.html', {
             'user_profile': user_profile,
@@ -212,7 +212,6 @@ class ProfileView(View):
     def get(self, request, pk):
         
         user_object = User.objects.filter(username=pk).first()  
-        print(user_object)
         if user_object is None:
             messages.info(request, 'User does not exist')
             return redirect('/')
@@ -223,20 +222,18 @@ class ProfileView(View):
 
         follower = request.user.username
         user = pk
-        #print("*" * 20)
-        for i in user_posts:
-            print(i.image)
 
-        if FollowersCount.objects.filter(follower=follower, user=user, status='accept').first():
+        if FollowersCount.objects.filter(follower=follower, user=user, status='accepted').first():
             button_text = 'Unfollow'
         elif FollowersCount.objects.filter(follower=follower, user=user, status='pending').first():
             button_text = 'Pending'
         else:
             button_text = 'Follow'
+            print(button_text)
 
-        user_followers = len(FollowersCount.objects.filter(user=pk))
-        user_following = len(FollowersCount.objects.filter(follower=pk))
-        is_public = FollowersCount.objects.filter(follower=follower, user=user, status='accept').exists()
+        user_followers = len(FollowersCount.objects.filter(user=pk, status = 'accepted'))
+        user_following = len(FollowersCount.objects.filter(follower=pk, status='accepted'))
+        is_public = FollowersCount.objects.filter(follower=follower, user=user, status='accepted').exists() or user_profile.is_public
         context = {
             'user_object': user_object,
             'user_profile': user_profile,
@@ -247,7 +244,6 @@ class ProfileView(View):
             'user_following': user_following,
             'is_public': is_public
         }
-        
         return render(request, 'testprofile.html', context)        
 
     def post(self, request, pk):
@@ -262,9 +258,9 @@ class FollowView(View):
 
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
-        print("Follow and unfolow feature")
         follower = request.POST['follower']
         user = request.POST['user']
+        print("Follow and unfolow feature", follower, user)
 
         if FollowersCount.objects.filter(follower=follower, user=user, status='accepted').first():
             delete_follower = FollowersCount.objects.get(follower=follower, user=user)
@@ -274,7 +270,8 @@ class FollowView(View):
             messages.info(request, 'Follow request already sent')
             return redirect('/profile/'+user)
         else:
-            follower_obj = Profile.objects.filter(username=follower).first()
+            user_object = User.objects.filter(username=user).first()
+            follower_obj = Profile.objects.filter(user=user_object).first()
             if follower_obj.is_public:
                 new_follower = FollowersCount.objects.create(follower=follower, user=user, status='accepted')
                 new_follower.save()
@@ -410,7 +407,8 @@ def messages_view(request):
 
 class toggleView(View):
     def post(self, request):
-        user_obj = Profile.objects.filter(id=request.POST['id']).first()
+        user_object = User.objects.filter(username=request.user.username).first()
+        user_obj = Profile.objects.filter(user=user_object).first()
         user_obj.is_public = not request.POST['is_public'] == 'true'
         user_obj.save()
         return HttpResponse('success')
@@ -424,7 +422,7 @@ class AcceptPendigRequests(View):
 
         follow_obj = FollowersCount.objects.filter(follower=user, user=follower).first()
         print(follow_obj)
-        follow_obj.status = 'accept'
+        follow_obj.status = 'accepted'
         follow_obj.save()
 
         return redirect('/')
