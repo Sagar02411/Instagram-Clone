@@ -453,7 +453,7 @@ Remove or comment-out the code block below to see how the browser will fall-back
     <div class="container">
 
         <div class="gallery">
-    
+            {% if is_public %}
             {% for post in user_posts %}
                 {% if forloop.counter0|divisibleby:3 %}
                     <!-- Start a new row for every third iteration -->
@@ -471,9 +471,12 @@ Remove or comment-out the code block below to see how the browser will fall-back
                     </div>
                 {% endif %}
             {% endfor %}
+            {% else %}
+            <h3>Please follow this account </h3>
+            {%endif%}
     
         </div>
-    
+
     </div>
     
 </main>

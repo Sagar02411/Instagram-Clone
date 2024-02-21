@@ -20,4 +20,6 @@ urlpatterns = [
     path('username-valid', views.ValidUsernameView.as_view(), name='username-valid'),
     path('email-valid', views.ValidEmailView.as_view(), name='email-valid'),
     path('chat/', views.messages_view, name='chat'),
+    path('toggle', views.toggleView.as_view(), name='toggle'),
+    path('accept', views.AcceptPendigRequests.as_view(), name='accept'),
 ]

@@ -62,7 +62,7 @@
     
                     </div>
 
-                    <!-- <div>
+                    <div>
                         <h3 class="text-xl mb-2"> Privacy</h3>
                         <p> </p>
                     </div>
@@ -71,52 +71,20 @@
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
-                                <h4> Who can follow me ?</h4>
+                                <h4> Private account</h4>
                                 <div>  </div>
                             </div>
                             <div class="switches-list -mt-8 is-large">
                                 <div class="switch-container">
-                                    <label class="switch"><input type="checkbox"><span class="switch-button"></span> </label>
+                                    {% if is_public == True %}
+                                    <label class="switch"><input type="checkbox" id="checkbox"><span class="switch-button"></span></label>
+                                    {% else %}
+                                    <label class="switch"><input type="checkbox" id="checkbox" checked><span class="switch-button"></span></label>
+                                    {% endif%}
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h4> Show my activities ?</h4>
-                                <div>  </div>
-                            </div>
-                            <div class="switches-list -mt-8 is-large">
-                                <div class="switch-container">
-                                    <label class="switch"><input type="checkbox" checked><span class="switch-button"></span> </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h4> Search engines?</h4>
-                                <div>  </div>
-                            </div>
-                            <div class="switches-list -mt-8 is-large">
-                                <div class="switch-container">
-                                    <label class="switch"><input type="checkbox"><span class="switch-button"></span> </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h4> Allow Commenting?</h4>
-                                <div>  </div>
-                            </div>
-                            <div class="switches-list -mt-8 is-large">
-                                <div class="switch-container">
-                                    <label class="switch"><input type="checkbox"><span class="switch-button"></span> </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
+                    </div>
     
                     </div>
                     <br>
@@ -139,9 +107,23 @@
     <script src="{% static 'assets/js/uikit.js' %}"></script>
     <script src="{% static 'assets/js/simplebar.js' %}"></script>
     <script src="{% static 'assets/js/custom.js' %}"></script>
-
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 
     <script src="{% static '../../unpkg.com/ionicons%405.2.3/dist/ionicons.js' %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#checkbox').change(function() {
+                $.post("/toggle", {
+                    id: '{{user.id}}', 
+                    is_public: this.checked, 
+                    csrfmiddlewaretoken: '{{ csrf_token }}' 
+                });
+            });
+        }); 
+        </script>
+        
+
 </body>
 
 </html>

@@ -51,20 +51,16 @@ class IndexView(View):
         suggestions_username_profile_list = Profile.objects.filter(user__in=final_suggestions_list[:4])
  
         display_user = request.user.username 
-        print({
-            'user_profile': user_profile,
-            'posts': posts,
-            'suggestions_username_profile_list': suggestions_username_profile_list,
-            'user': display_user,
-            'comments_dict': comments_dict,
-        })
- 
+        pending_follow_request = FollowersCount.objects.filter(user = request.user.username, status='pending')
+        print(pending_follow_request)
         return render(request, 'testindex.html', {
             'user_profile': user_profile,
             'posts': posts,
             'suggestions_username_profile_list': suggestions_username_profile_list,
             'user': display_user,
             'comments_dict': comments_dict,
+            'pending_follow_request': pending_follow_request,
+            'is_public': user_profile.is_public
         })
    
     def post(self, request):
@@ -216,7 +212,6 @@ class ProfileView(View):
     def get(self, request, pk):
         
         user_object = User.objects.filter(username=pk).first()  
-        print(user_object)
         if user_object is None:
             messages.info(request, 'User does not exist')
             return redirect('/')
@@ -227,17 +222,18 @@ class ProfileView(View):
 
         follower = request.user.username
         user = pk
-        #print("*" * 20)
-        for i in user_posts:
-            print(i.image)
 
-        if FollowersCount.objects.filter(follower=follower, user=user).first():
+        if FollowersCount.objects.filter(follower=follower, user=user, status='accepted').first():
             button_text = 'Unfollow'
+        elif FollowersCount.objects.filter(follower=follower, user=user, status='pending').first():
+            button_text = 'Pending'
         else:
             button_text = 'Follow'
+            print(button_text)
 
-        user_followers = len(FollowersCount.objects.filter(user=pk))
-        user_following = len(FollowersCount.objects.filter(follower=pk))
+        user_followers = len(FollowersCount.objects.filter(user=pk, status = 'accepted'))
+        user_following = len(FollowersCount.objects.filter(follower=pk, status='accepted'))
+        is_public = FollowersCount.objects.filter(follower=follower, user=user, status='accepted').exists() or user_profile.is_public
         context = {
             'user_object': user_object,
             'user_profile': user_profile,
@@ -246,8 +242,8 @@ class ProfileView(View):
             'user_post_length': user_post_length,
             'user_followers': user_followers,
             'user_following': user_following,
+            'is_public': is_public
         }
-        print(context)
         return render(request, 'testprofile.html', context)        
 
     def post(self, request, pk):
@@ -262,24 +258,39 @@ class FollowView(View):
 
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
-        print("Follow and unfolow feature")
         follower = request.POST['follower']
         user = request.POST['user']
+        print("Follow and unfolow feature", follower, user)
 
-        if FollowersCount.objects.filter(follower=follower, user=user).first():
+        if FollowersCount.objects.filter(follower=follower, user=user, status='accepted').first():
             delete_follower = FollowersCount.objects.get(follower=follower, user=user)
             delete_follower.delete()
             return redirect('/profile/'+user)
+        elif FollowersCount.objects.filter(follower=follower, user=user, status='pending').first():
+            messages.info(request, 'Follow request already sent')
+            return redirect('/profile/'+user)
         else:
-            new_follower = FollowersCount.objects.create(follower=follower, user=user)
-            new_follower.save()
-            return redirect('/profile/'+user) 
+            user_object = User.objects.filter(username=user).first()
+            follower_obj = Profile.objects.filter(user=user_object).first()
+            if follower_obj.is_public:
+                new_follower = FollowersCount.objects.create(follower=follower, user=user, status='accepted')
+                new_follower.save()
+                return redirect('/profile/'+user)
+            else:
+                follow_request = FollowersCount(follower=follower, user=user)
+                follow_request.save()
+                messages.success(request, 'Follow request sent successfully')
+                return redirect('/profile/'+user)
         
 class SettingsVew(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def get(self, request):
         user_profile = Profile.objects.get(user=request.user)
-        return render(request, 'setting.html', {'user_profile': user_profile})
+        context = {
+            'user_profile': user_profile,
+            'is_public': user_profile.is_public
+        }
+        return render(request, 'setting.html', context)
 
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
@@ -294,7 +305,11 @@ class SettingsVew(View):
             user_profile.profileimg = image
             user_profile.save()
         
-        return redirect('settings')
+        context={
+            "is_public": user_profile.is_public
+        }
+
+        return render('settings', context)
 
 class CommentView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
@@ -385,3 +400,29 @@ class ValidEmailView(View):
 
 
         return JsonResponse('', safe=False)
+
+def messages_view(request):
+    all_users = User.objects.all()    
+    return render(request, 'testmessages.html', {'all_users': all_users})
+
+class toggleView(View):
+    def post(self, request):
+        user_object = User.objects.filter(username=request.user.username).first()
+        user_obj = Profile.objects.filter(user=user_object).first()
+        user_obj.is_public = not request.POST['is_public'] == 'true'
+        user_obj.save()
+        return HttpResponse('success')
+
+class AcceptPendigRequests(View):
+    def post(self, request):
+        follower = request.POST['follower']
+        user = request.POST['user']
+
+        print("*"*25,follower, user)
+
+        follow_obj = FollowersCount.objects.filter(follower=user, user=follower).first()
+        print(follow_obj)
+        follow_obj.status = 'accepted'
+        follow_obj.save()
+
+        return redirect('/')

@@ -533,14 +533,41 @@
             text-align: center;
         }
 
+        .modal_request {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 85%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 250px;
+            max-height: auto;
+            width: 100%;
+        }
+
         /* Style for the modal content */
         .modal-content {
             max-height: 300px;
             overflow-y: auto;
         }
 
+        .modal-content_request {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
         /* Style for the close button */
         .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .close_request {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -622,6 +649,27 @@
                 <div class="nav-links">
                     <ul class="nav-group">
                         <li class="nav-item">
+                            <li class="nav-item">
+                                <span class="material-symbols-outlined" id="openModal_request" style="margin-top: 3px; cursor: pointer;">
+                                    favorite
+                                </span>
+                                <div id="myModal_request" class="modal_request">
+                                    <span class="close_request" onclick="closeModal_request()"></span>
+                                    <div class="modal-content_request">
+                                       {% for request in pending_follow_request %}
+                                       <form class="d-flex" role="accept-follow-request" method="POST" action="accept">
+                                        {% csrf_token %}
+                                            <h4>
+                                                {{request.follower}}
+                                                <input type="hidden" value="{{request.user}}" name="follower" />
+					                            <input type="hidden" value="{{request.follower}}" name="user" />
+                                                <button type="submit" class="btn btn-primary" style="height: 37px; width: 75px; margin-left: 15px">Accept</button>
+                                            </h4>
+                                    </form>
+                                       {%endfor%}
+                                    </div>
+                                </div>
+                            </li>
                             <span style="cursor: pointer;" class="material-symbols-outlined" id="openModal">
                                 upload_2
                             </span>
@@ -817,6 +865,32 @@
             closeModal();
         }
     }
+
+
+    var modal_request = document.getElementById('myModal_request');
+
+    // Get the <span> element that opens the modal
+    var span_request = document.getElementById('openModal_request');
+
+    // When the user clicks the <span>, open the modal
+    span_request.onclick = function () {
+        modal_request.style.display = 'block';
+    }
+
+    // When the user clicks the close button, close the modal
+    function closeModal_request() {
+        modal_request.style.display = 'none';
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            closeModal_request();
+        }
+    }
+
+
+
 
     function toggleDropdown() {
         var dropdown = document.getElementById('dropdown');
