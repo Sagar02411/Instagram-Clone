@@ -34,20 +34,24 @@
     python manage.py runserver
     ```
 ## Project Structure
- 
-- `manage.py`: Django's command-line utility for administrative tasks.
-- `requirement.txt`: List of Python dependencies.
-- `project_name/`: social_book.
-    - `settings.py`: Project settings and configurations.
-    - `urls.py`: URL declarations for the project.
-    - `wsgi.py`: WSGI config for deployment.
-    - `asgi.py`: ASGI config for Channels.
-- `app_name/`: core.
-    - `models.py`: Database models.
-    - `views.py`: Request handling functions.
-    - `urls.py`: URL declarations for the app.
-    - `admin.py`: Admin site registrations.
-    - `templates/`: HTML templates.
-    - `static/`: Static files (CSS, JavaScript, images).
-    - `apps.py`: Declarations of apps.
-    - `test.py`: Generate testcases.
+ ```
+social_book/
+├── manage.py
+├── requirement.txt
+├── social_book/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+└── core/
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── models.py
+    ├── tests.py
+    ├── urls.py
+    ├── views.py
+    ├── templates/
+    └── static/
+```
