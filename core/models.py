@@ -34,6 +34,7 @@ class Post(models.Model):
 class LikePost(models.Model):
     post_id = models.CharField(max_length=500)
     username = models.CharField(max_length=100)
+    reation_type = models.IntegerField(default=0, null=True)
     def __str__(self):
         return self.username
 
@@ -49,6 +50,7 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comment")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField()
+    comment_image = models.ImageField(upload_to='comment_images', null=True)
     date = models.DateTimeField(auto_now_add=True, null=True)
     active = models.BooleanField(default=True)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, default=None, blank=True, null=True, related_name="comment_parent")

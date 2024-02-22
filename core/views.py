@@ -182,15 +182,16 @@ class LikePostView(View):
     def get(self, request):
         username = request.user.username
         post_id = request.GET.get('post_id')
-        print(post_id)
+        reaction_type = request.GET.get('reaction_type')
         post = Post.objects.filter(id=post_id).first()
 
         like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
+        print("*"*25,post_id, reaction_type)
 
         Liked = 0
 
         if like_filter == None:
-            new_like = LikePost.objects.create(post_id=post_id, username=username)
+            new_like = LikePost.objects.create(post_id=post_id, username=username, reation_type=reaction_type)
             new_like.save()
             post.no_of_likes = post.no_of_likes+1
             post.save()
@@ -318,11 +319,22 @@ class SettingsVew(View):
 class CommentView(View):
     @method_decorator(login_required(login_url='signin'), name='signin')
     def post(self, request):
+        # import pdb; pdb.set_trace()
         post_id = request.POST.get('post_id')
         comment_text = request.POST.get('comment')
 
         if comment_text.isspace():
             messages.info(request, 'Comment should not contain the only space', extra_tags='comment')
+            return redirect('/')
+        
+        image = request.FILES.get('comment_upload')
+        print('000000000000', comment_text, image)
+        if not image.content_type.startswith('image/'):
+            return HttpResponseBadRequest("Only JPEG and PNG images are allowed.")
+
+        if post_id and comment_text and image:
+            post = Post.objects.get(pk=post_id)
+            Comment.objects.create(post=post, user=request.user, comment=comment_text, comment_image=image)
             return redirect('/')
 
         if post_id and comment_text:
