@@ -764,7 +764,7 @@
                             <div class="left">
                                 <div class="tooltip-wrap">
                                     <!-- <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}"> -->
-
+                                    <div id="{{post}}-svg">
                                     <input type="hidden" id="post_id_{{post}}" name="post_id" value="{{post}}">
                                     <span class="heart-{{post}}-0" style="cursor: pointer;">
                                         <svg id="heart-color-{{post}}" xmlns="http://www.w3.org/2000/svg" width="24"
@@ -784,7 +784,7 @@
                                         </span>
                                         <span class="material-symbols-outlined heart-{{post}}-1">
                                             thumb_up
-                                            </span>
+                                        </span>
                                         <span class="material-symbols-outlined heart-{{post}}-2">
                                             celebration
                                         </span>
@@ -792,6 +792,7 @@
                                             sentiment_very_satisfied
                                         </span>
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -1026,8 +1027,8 @@
         debugger;
         post_id = document.getElementById('post_id_{{post}}').value
         console.log(post_id)
-        var likeIcon = $('#like-icon')
-
+        var likeIcon = $('.heart-{{post}}-1').text();
+        console.log(likeIcon)
         $.ajax({
             type: 'GET',
             url: 'like-post',
@@ -1037,13 +1038,12 @@
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
             },
             success: (response) => {
-                console.log("Thumsup")
+                console.log(response.likes)
                 $('#likes-{{post}}').text(response.likes);
-                var element = $('#heart-color-{{post}}'); 
                 if (response.Liked) {
-                    element.html('<span class="material-symbols-outlined heart-{{post}}-1">thumb_up</span>');
+                    $('#{{post}}-svg').html('<span class="material-symbols-outlined heart-{{post}}-1">thumb_up</span>');
                 } else {
-                    element.html('<span class="material-symbols-outlined heart-{{post}}-1">thumb_up</span>');
+                    document.getElementById('heart-color-{{post}}').style.fill = "#262626"
                 }
             },
             error: (xhr, errmsg, err) => {
@@ -1069,7 +1069,7 @@
                 console.log(response.likes)
                 $('#likes-{{post}}').text(response.likes);
                 if (response.Liked) {
-                    document.getElementById('heart-color-{{post}}').style.fill = "red"
+                    $('#{{post}}-svg').html(' <span class="material-symbols-outlined heart-{{post}}-2">celebration</span>');
                 } else {
                     document.getElementById('heart-color-{{post}}').style.fill = "#262626"
                 }
@@ -1098,7 +1098,7 @@
                 console.log(response.likes)
                 $('#likes-{{post}}').text(response.likes);
                 if (response.Liked) {
-                    document.getElementById('heart-color-{{post}}').style.fill = "red"
+                    $('#{{post}}-svg').html('<span class="material-symbols-outlined heart-{{post}}-3">sentiment_very_satisfied</span>');
                 } else {
                     document.getElementById('heart-color-{{post}}').style.fill = "#262626"
                 }

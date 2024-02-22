@@ -1,29 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
 <body>
-	<center><h1>Hello , Welcome to my chat site ! {{request.user}}</h1></center>
-	<br>
-	{% if request.user.is_authenticated %}
-	{% endif %}
-
-	<select id="receiver-select">
-		<option value="">Select a user</option>
-		{% for user in all_users %}
-		  <option value="{{ user.username }}">{{ user.username }}</option>
-		{% endfor %}
-	  </select>
-
-	<div
-	class="chat__item__container"
-	id="id_chat_item_container"
-	style="font-size: 20px"
-	>
-	<br />
-	<input type="text" id="id_message_send_input" />
-	<button type="submit" id="id_message_send_button">Send</button>
-	<br />
-	<br />
-	</div>
+    <h1>Chat</h1>
+    <form id="chat-form">
+        <label for="sender">Select Sender:</label>
+        <select id="sender" name="sender">
+            <!-- Options for selecting sender -->
+            {% for user in all_users %}
+                <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="message">Message:</label>
+        <input type="text" id="message" name="message">
+        <button type="submit">Send</button>
+    </form>
+    <div id="messages">
+        <!-- Display received messages here -->
+    </div>
 	<script>
     let url = `ws://${window.location.host}/ws/socket-server/` 
 	const chatSocket = new WebSocket(url);
@@ -33,25 +32,21 @@
 	chatSocket.onclose = function (e) {
 		console.log("Something unexpected happened !");
 	};
-	document.querySelector("#id_message_send_input").focus();
-	document.querySelector("#id_message_send_input").onkeyup = function (e) {
-		if (e.keyCode == 13) {
-		document.querySelector("#id_message_send_button").click();
-		}
-	};
-	document.querySelector("#id_message_send_button").onclick = function (e) {
-	var messageInput = document.querySelector("#id_message_send_input").value;
-	var receiver = document.querySelector("#receiver-select").value;
-	chatSocket.send(JSON.stringify({ message: messageInput, receiver: receiver }));
-	};
-	chatSocket.onmessage = function (e) {
+	document.getElementById("chat-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const sender = document.getElementById("sender").value;
+            const message = document.getElementById("message").value;
+            chatSocket.send(JSON.stringify({ message: message, receiver_id: sender }));
+            document.getElementById("message").value = "";
+        });
 		debugger;
-		const data = JSON.parse(e.data);
-		var div = document.createElement("div");
-		div.innerHTML = data.sender + " : " + data.message;
-		document.querySelector("#id_message_send_input").value = "";
-		document.querySelector("#id_chat_item_container").appendChild(div);
-	};
+        chatSocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const messageElement = document.createElement("div");
+            messageElement.textContent = `Sender: ${data.sender_id}, Message: ${data.message}`;
+            document.getElementById("messages").appendChild(messageElement)
+        };
+
 	</script>
 </body>
 </html>
