@@ -11,7 +11,7 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
     profileimg = models.ImageField(upload_to='profile_images', default='blank-profile-picture.png')
-    created_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(null=True, default=datetime.now)
     updated_at = models.DateTimeField(null=True)
     deleted_at = models.DateTimeField(null=True)
     is_public = models.BooleanField(default=True)
@@ -27,6 +27,8 @@ class Post(models.Model):
     caption = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
     no_of_likes = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
 
     def __str__(self):
         return str(self.id)  
@@ -35,6 +37,10 @@ class LikePost(models.Model):
     post_id = models.CharField(max_length=500)
     username = models.CharField(max_length=100)
     reation_type = models.IntegerField(default=0, null=True)
+    created_at = models.DateTimeField(default=datetime.now)
+    updated_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
+
     def __str__(self):
         return self.username
 
@@ -42,6 +48,10 @@ class FollowersCount(models.Model):
     follower = models.CharField(max_length=100, default='name')
     user = models.CharField(max_length=100)
     status = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=datetime.now)
+    updated_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
+
 
     def __str__(self):
         return self.user
@@ -54,6 +64,9 @@ class Comment(models.Model):
     date = models.DateTimeField(auto_now_add=True, null=True)
     active = models.BooleanField(default=True)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, default=None, blank=True, null=True, related_name="comment_parent")
+    created_at = models.DateTimeField(default=datetime.now)
+    updated_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.user.username
@@ -67,6 +80,9 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
+
 
 # class Hashtags(models.Model):
 #     post_id = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="hashtag")

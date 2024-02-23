@@ -766,6 +766,31 @@
                                     <!-- <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}"> -->
                                     <div id="{{post}}-svg">
                                     <input type="hidden" id="post_id_{{post}}" name="post_id" value="{{post}}">
+                                    {% for key, reaction in reaction_type.items%}
+                                    {% if key == post %}
+                                    {% if reaction == 0 %}
+                                    <span class="heart-{{post}}-0" style="cursor: pointer;">
+                                        <svg id="heart-color-{{post}}" xmlns="http://www.w3.org/2000/svg" width="24"
+                                            height="24" viewBox="0 0 24 24" class="tooltip-wrap" fill = 'red'>
+                                            <path
+                                                d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 4.661 5.571 9.427 12 15.808 6.43-6.381 12-11.147 12-15.808 0-6.792-8.875-8.306-12-2.944z" />
+                                        </svg>
+                                    </span>
+                                    {% elif reaction == 1 %}
+                                    <span class="material-symbols-outlined heart-{{post}}-1">
+                                        thumb_up
+                                    </span>
+
+                                    {% elif reaction == 2 %}
+                                    <span class="material-symbols-outlined heart-{{post}}-2">
+                                        celebration
+                                    </span>
+
+                                    {% elif reaction == 3 %}
+                                    <span class="material-symbols-outlined heart-{{post}}-3">
+                                        sentiment_very_satisfied
+                                    </span>
+                                    {% elif reaction == -1%}
                                     <span class="heart-{{post}}-0" style="cursor: pointer;">
                                         <svg id="heart-color-{{post}}" xmlns="http://www.w3.org/2000/svg" width="24"
                                             height="24" viewBox="0 0 24 24" class="tooltip-wrap">
@@ -773,6 +798,9 @@
                                                 d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 4.661 5.571 9.427 12 15.808 6.43-6.381 12-11.147 12-15.808 0-6.792-8.875-8.306-12-2.944z" />
                                         </svg>
                                     </span>
+                                    {%endif%}
+                                    {%endif%}
+                                    {% endfor %}
                                     <div class="tooltip-content" style="cursor: pointer;">
                                         <span class="heart-{{post}}-0">
                                             

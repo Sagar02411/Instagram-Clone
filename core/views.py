@@ -53,6 +53,17 @@ class IndexView(View):
         display_user = request.user.username 
         pending_follow_request = FollowersCount.objects.filter(user = request.user.username, status=False)
         print(pending_follow_request)
+
+        reaction_type = {}
+        for post in posts:
+            reaction = LikePost.objects.filter(post_id = post, username= request.user.username).first()
+            if reaction:
+                reaction_type[post] = reaction.reation_type
+            else:
+                reaction_type[post] = -1
+
+        print(reaction_type)
+
         return render(request, 'testindex.html', {
             'user_profile': user_profile,
             'posts': posts,
@@ -60,7 +71,8 @@ class IndexView(View):
             'user': display_user,
             'comments_dict': comments_dict,
             'pending_follow_request': pending_follow_request,
-            'is_public': user_profile.is_public
+            'is_public': user_profile.is_public,
+            'reaction_type': reaction_type
         })
    
     def post(self, request):
@@ -186,21 +198,24 @@ class LikePostView(View):
         post = Post.objects.filter(id=post_id).first()
 
         like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
-        print("*"*25,post_id, reaction_type)
 
         Liked = 0
-
+        # import pdb; pdb.set_trace()
         if like_filter == None:
             new_like = LikePost.objects.create(post_id=post_id, username=username, reation_type=reaction_type)
             new_like.save()
             post.no_of_likes = post.no_of_likes+1
             post.save()
             Liked = 1
-
         else:
-            like_filter.delete()
-            post.no_of_likes = post.no_of_likes-1
-            post.save()
+            if int(reaction_type) == like_filter.reation_type:
+                like_filter.delete()
+                post.no_of_likes = post.no_of_likes-1
+                post.save()
+                print("*"*25, post.no_of_likes)
+            else:
+                like_filter.reation_type = reaction_type
+                like_filter.save()
         likes = post.no_of_likes
         context = {
             'likes': likes,

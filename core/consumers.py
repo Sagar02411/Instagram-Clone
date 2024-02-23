@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 # class ChatConsumer(AsyncWebsocketConsumer):
 # 	async def connect(self):
-# 		self.roomGroupName = "group_chat_gfg"
+# 		self.roomGroupName = "group_chat"
 # 		await self.channel_layer.group_add(
 # 			self.roomGroupName ,
 # 			self.channel_name
